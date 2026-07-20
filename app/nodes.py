@@ -1,22 +1,27 @@
-"""
-Each node is a plain function: (state) -> partial state update.
-No LangGraph-specific magic here, which makes them easy to unit test later.
-"""
+import json
+from pathlib import Path
+
 from app.llm import get_llm
 from app.models import CoverageDecision, ExtractedClaim
+from app.retrieval.hybrid_retriever import hybrid_search
+from app.retrieval.keyword_store import build_keyword_store
+from app.retrieval.vector_store import build_vector_store
 from app.state import ClaimState
 
 REQUIRED_FIELDS = ["policy_number", "claim_type", "incident_date"]
 
-# Stand-in for the real knowledge base. Phase 2 replaces this with hybrid RAG
-# over actual policy documents — the node interface below won't need to change.
-POLICY_RULES = """
-- Auto claims are covered up to $10,000 if the incident date is within the policy's active period.
-- Home claims related to flood damage are NOT covered under standard policies.
-- Health claims require a policy_number starting with 'H-' to be considered valid.
-- Any claim missing a clear incident_date should be marked as needs_review.
-"""
+_vector_store = None
+_keyword_store = None
 
+
+def _get_retrieval_stores():
+    global _vector_store, _keyword_store
+    if _vector_store is None or _keyword_store is None:
+        docs_path = Path(__file__).parent.parent / "data" / "policy_docs.json"
+        docs = json.loads(docs_path.read_text())
+        _vector_store = build_vector_store(docs)
+        _keyword_store = build_keyword_store(docs)
+    return _vector_store, _keyword_store
 
 def intake_node(state: ClaimState) -> dict:
     llm = get_llm()
@@ -37,17 +42,22 @@ def clarification_node(state: ClaimState) -> dict:
 
 
 def coverage_check_node(state: ClaimState) -> dict:
+    extracted = state["extracted"]
+    vector_store, keyword_store = _get_retrieval_stores()
+
+    query = f"{extracted.claim_type} claim: {extracted.description}"
+    retrieved = hybrid_search(vector_store, keyword_store, query, top_k=3)
+    policy_context = "\n".join(f"- {r['title']}: {r['text']}" for r in retrieved)
+
     llm = get_llm()
     structured_llm = llm.with_structured_output(CoverageDecision)
-    extracted = state["extracted"]
     decision: CoverageDecision = structured_llm.invoke(
-        f"Policy rules:\n{POLICY_RULES}\n\n"
+        f"Relevant policy clauses:\n{policy_context}\n\n"
         f"Claim details:\n{extracted.model_dump_json(indent=2)}\n\n"
         "Decide whether this claim should be approved, denied, or needs_review, "
-        "and explain why in one or two sentences."
+        "based only on the policy clauses above, and explain why in one or two sentences."
     )
     return {"coverage_decision": decision}
-
 
 def route_after_intake(state: ClaimState) -> str:
     return "clarification_needed" if state["missing_fields"] else "coverage_check"
