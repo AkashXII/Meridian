@@ -1,15 +1,11 @@
-"""
-The state that flows through every node in the graph. Each node receives the
-current state and returns a dict of the keys it wants to update — LangGraph
-merges that into the running state for you.
-"""
+
 from typing import List, Optional, TypedDict
-
-from app.models import CoverageDecision, ExtractedClaim
-
-
+from app.models import CoverageDecision, ExtractedClaim, FraudCheck
 class ClaimState(TypedDict):
     raw_claim_text: str
+    redacted_claim_text: str
+    pii_found: List[dict]
     extracted: Optional[ExtractedClaim]
     missing_fields: List[str]
     coverage_decision: Optional[CoverageDecision]
+    fraud_check: Optional[FraudCheck]

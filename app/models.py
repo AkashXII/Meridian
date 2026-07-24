@@ -22,6 +22,7 @@ class ExtractedClaim(BaseModel):
     amount_requested: Optional[float] = Field(
         None, description="Dollar amount being claimed, if mentioned"
     )
+    
 
 
 class CoverageDecision(BaseModel):
@@ -29,3 +30,6 @@ class CoverageDecision(BaseModel):
     reasoning: str = Field(
         description="Brief explanation for the decision, referencing the policy rules used"
     )
+class FraudCheck(BaseModel):
+    flagged: bool = Field(description="True if anything in the claim looks inconsistent or suspicious")
+    reason: str = Field(description="Brief explanation of what was flagged, or why nothing was flagged")

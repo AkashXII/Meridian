@@ -1,0 +1,18 @@
+[
+  {"doc_id": "auto_1", "claim_type": "auto", "title": "Auto Comprehensive Coverage",
+   "text": "Comprehensive auto coverage pays for collision and non-collision damage up to $10,000 per incident, provided the incident date falls within the active policy period."},
+  {"doc_id": "auto_2", "claim_type": "auto", "title": "Auto Exclusions",
+   "text": "Damage sustained while the vehicle is used for racing, ride-share commercial driving, or with an expired registration is excluded from coverage."},
+  {"doc_id": "home_1", "claim_type": "home", "title": "Home Structural Coverage",
+   "text": "Standard home policies cover damage from fire, theft, windstorm, and burst pipes to the primary dwelling structure."},
+  {"doc_id": "home_2", "claim_type": "home", "title": "Home Flood Exclusion",
+   "text": "Flood damage, including basement flooding from heavy rain or rising groundwater, is not covered under a standard home policy and requires a separate flood rider."},
+  {"doc_id": "health_1", "claim_type": "health", "title": "Health Claim Validity",
+ "text": "Health claims are only valid under policy numbers beginning with the prefix H-. The H- prefix is reserved exclusively for health policies; a claim of any other type submitted against a policy number starting with H- is invalid and must be flagged for review."},
+  {"doc_id": "health_2", "claim_type": "health", "title": "Health Pre-existing Conditions",
+   "text": "Treatment for conditions diagnosed prior to the policy start date is covered only after a 12-month waiting period has elapsed."},
+  {"doc_id": "general_1", "claim_type": "general", "title": "Claim Filing Deadline",
+   "text": "All claims must be filed within 60 days of the incident date. Late claims may be denied regardless of coverage eligibility."},
+  {"doc_id": "general_2", "claim_type": "general", "title": "Fraud Investigation Clause",
+   "text": "Claims containing inconsistent dates, amounts, or descriptions across submissions may be flagged for manual fraud review before a decision is issued."}
+]

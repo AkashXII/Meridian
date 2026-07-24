@@ -19,9 +19,12 @@ def main():
     result = graph.invoke(
         {
             "raw_claim_text": raw_text,
+            "redacted_claim_text": None,
+            "pii_found": [],
             "extracted": None,
             "missing_fields": [],
             "coverage_decision": None,
+            "fraud_check": None,
         }
     )
 
@@ -33,6 +36,9 @@ def main():
         print(result["coverage_decision"].model_dump_json(indent=2))
     else:
         print(f"\nStopped for clarification. Missing: {result['missing_fields']}")
+    if result.get("fraud_check"):
+        print("\nFraud check:")
+        print(result["fraud_check"].model_dump_json(indent=2))
 
 
 if __name__ == "__main__":
