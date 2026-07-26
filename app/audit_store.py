@@ -19,7 +19,7 @@ def _connect():
     )
 
 
-def record_decision(state: dict, latency_ms: int) -> None:
+def record_decision(state: dict, latency_ms: int, user_id: int | None = None) -> None:
     extracted = state.get("extracted")
     coverage = state.get("coverage_decision")
     fraud = state.get("fraud_check")
@@ -39,6 +39,7 @@ def record_decision(state: dict, latency_ms: int) -> None:
         "fraud_reason": fraud.reason if fraud else None,
         "final_decision": coverage.decision if coverage else None,
         "latency_ms": latency_ms,
+        "user_id": user_id,
         "input_tokens": state.get("input_tokens"),
         "output_tokens": state.get("output_tokens"),
         "estimated_cost_usd": state.get("estimated_cost_usd"),
@@ -50,13 +51,13 @@ def record_decision(state: dict, latency_ms: int) -> None:
             policy_number, claim_type, incident_date, amount_requested,
             retrieved_docs, coverage_decision, coverage_reasoning,
             fraud_flagged, fraud_reason, final_decision, latency_ms,
-            input_tokens, output_tokens, estimated_cost_usd
+            input_tokens, output_tokens, estimated_cost_usd, user_id
         ) VALUES (
             %(raw_claim_text)s, %(redacted_claim_text)s, %(pii_found)s,
             %(policy_number)s, %(claim_type)s, %(incident_date)s, %(amount_requested)s,
             %(retrieved_docs)s, %(coverage_decision)s, %(coverage_reasoning)s,
             %(fraud_flagged)s, %(fraud_reason)s, %(final_decision)s, %(latency_ms)s,
-            %(input_tokens)s, %(output_tokens)s, %(estimated_cost_usd)s
+            %(input_tokens)s, %(output_tokens)s, %(estimated_cost_usd)s, %(user_id)s
         )
     """
     try:
@@ -68,3 +69,4 @@ def record_decision(state: dict, latency_ms: int) -> None:
     except Exception as e:
         # Audit failure must not break the pipeline — log and move on.
         print(f"[audit_store] failed to record decision: {e}")
+

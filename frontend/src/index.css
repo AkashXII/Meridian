@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --color-inverse-on-surface: #eaf1ff;
+  --color-primary-fixed-dim: #b7c7eb;
+  --color-surface-container: #e5eeff;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-container-high: #dfe9fa;
+  --color-surface: #f8f9ff;
+  --color-tertiary-fixed: #ffdea7;
+  --color-surface-dim: #d1dbec;
+  --color-tertiary-fixed-dim: #e3c28a;
+  --color-tertiary: #211500;
+  --color-surface-container-highest: #d9e3f4;
+  --color-on-error: #ffffff;
+  --color-inverse-primary: #b7c7eb;
+  --color-secondary: #3f6653;
+  --color-on-error-container: #93000a;
+  --color-on-tertiary-container: #ac8e5b;
+  --color-secondary-fixed: #c1ecd4;
+  --color-secondary-container: #beead1;
+  --color-error: #ba1a1a;
+  --color-primary: #041632;
+  --color-on-surface: #121c28;
+  --color-on-secondary-fixed: #002114;
+  --color-on-primary: #ffffff;
+  --color-tertiary-container: #3b2800;
+  --color-outline-variant: #c5c6ce;
+  --color-on-primary-container: #8393b5;
+  --color-surface-variant: #d9e3f4;
+  --color-surface-container-lowest: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-background: #f8f9ff;
+  --color-surface-tint: #4f5e7e;
+  --color-on-surface-variant: #44474d;
+  --color-secondary-fixed-dim: #a5d0b9;
+  --color-primary-fixed: #d7e2ff;
+  --color-inverse-surface: #27313e;
+  --color-primary-container: #1b2b48;
+  --color-on-primary-fixed-variant: #374765;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container-low: #eef4ff;
+  --color-on-background: #121c28;
+  --color-on-tertiary-fixed-variant: #594317;
+  --color-on-tertiary-fixed: #271900;
+  --color-on-secondary-fixed-variant: #274e3d;
+  --color-outline: #75777e;
+  --color-on-primary-fixed: #091b37;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #436b58;
+
+  --spacing-gutter: 16px;
+  --spacing-stack-md: 16px;
+  --spacing-margin-desktop: 32px;
+  --spacing-stack-lg: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-unit: 4px;
+  --spacing-stack-sm: 8px;
+  --spacing-container-max: 1440px;
+}
+
+/* Custom Typography Utilities matching Tailwind theme config */
+.font-display-lg, .text-display-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 30px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.font-headline-md, .text-headline-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.font-headline-sm, .text-headline-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.font-body-lg, .text-body-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-body-md, .text-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.font-label-md, .text-label-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.font-data-tabular, .text-data-tabular {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+.rounded-DEFAULT {
+  border-radius: 0.125rem;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9ff;
+  color: #121c28;
+  -webkit-font-smoothing: antialiased;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #041632 !important;
+  box-shadow: none !important;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

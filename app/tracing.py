@@ -1,6 +1,5 @@
 """
 One-time setup: where spans go (Jaeger, via OTLP gRPC on localhost:4317),
-and the single `tracer` object every node imports to create spans.
 """
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
