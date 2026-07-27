@@ -1,9 +1,4 @@
-"""
-Compares three retrieval strategies against the labeled eval set:
-vector-only, BM25-only, and the production hybrid (vector + BM25 + rerank).
 
-Run: python -m eval.run_eval
-"""
 import json
 from pathlib import Path
 
