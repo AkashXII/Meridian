@@ -46,7 +46,7 @@ export default function Login({ authToken, setAuthToken }) {
       <div className="flex-grow flex items-center justify-center p-4">
         <main className="w-full max-w-[400px]">
           <div className="mb-stack-lg text-center">
-            <h1 className="font-display-lg text-display-lg text-primary">ClaimsPortal</h1>
+            <h1 className="font-display-lg text-display-lg text-primary">Meridian</h1>
           </div>
 
           <div className="border border-outline-variant bg-surface-container-lowest">

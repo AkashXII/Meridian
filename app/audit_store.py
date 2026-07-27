@@ -67,6 +67,5 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
         conn.commit()
         conn.close()
     except Exception as e:
-        # Audit failure must not break the pipeline — log and move on.
         print(f"[audit_store] failed to record decision: {e}")
 

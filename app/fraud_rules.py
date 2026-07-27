@@ -1,11 +1,4 @@
-"""
-Deterministic fraud/validity checks.
 
-These are all closed-form questions — given the extracted fields, each one has
-exactly one correct answer, computable without a model. Anything that can be
-decided by comparing values belongs here, not in a prompt: it's faster, free,
-unit-testable, and gives the same answer every single run.
-"""
 from datetime import date, datetime
 
 from app.models import ExtractedClaim

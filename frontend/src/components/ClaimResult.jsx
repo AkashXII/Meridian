@@ -37,7 +37,7 @@ export default function ClaimResult({ setAuthToken, currentScreen, setCurrentScr
       className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer"
       onClick={() => setCurrentScreen('submit')}
     >
-      ClaimsPortal
+      Meridian
     </div>
     <nav className="hidden md:flex gap-6 items-center absolute left-1/2 -translate-x-1/2">
       <button

@@ -5,29 +5,29 @@ CREATE TABLE IF NOT EXISTS claim_decisions (
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    -- input: both raw and redacted, so we can prove PII scrubbing ran
+
     raw_claim_text        TEXT NOT NULL,
     redacted_claim_text   TEXT NOT NULL,
-    pii_found             JSON,          -- [{entity_type, start, end, score}, ...]
+    pii_found             JSON,         
 
     -- extracted fields
     policy_number   VARCHAR(64),
     claim_type      VARCHAR(32),
-    incident_date   VARCHAR(32),         -- kept as-extracted (may be null/malformed); not a DATE on purpose
+    incident_date   VARCHAR(32),        
     amount_requested DECIMAL(12,2),
 
-    -- retrieval trace: what the coverage decision was actually grounded in
-    retrieved_docs  JSON,                -- [{doc_id, title, rerank_score}, ...]
+   
+    retrieved_docs  JSON,              
 
     -- decisions
-    coverage_decision   VARCHAR(32),     -- approved / denied / needs_review
+    coverage_decision   VARCHAR(32),     
     coverage_reasoning  TEXT,
     fraud_flagged       BOOLEAN,
     fraud_reason        TEXT,
-    final_decision      VARCHAR(32),     -- after fraud override logic
+    final_decision      VARCHAR(32),   
 
     -- observability
-    latency_ms      INT,                 -- total wall-clock for the graph run
+    latency_ms      INT,                 
 
     INDEX idx_policy_number (policy_number),
     INDEX idx_created_at (created_at),

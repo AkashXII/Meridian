@@ -1,7 +1,4 @@
-"""
-Structured output schemas. We hand these to the LLM via `.with_structured_output()`
-so we get back typed, validated objects instead of parsing free text.
-"""
+
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 

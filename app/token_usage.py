@@ -1,10 +1,4 @@
-"""
-Token usage extraction + cost estimation for Groq calls.
 
-Pricing is hardcoded for the specific model in use (Llama 3.3 70B Versatile,
-$0.59/$0.79 per million input/output tokens) rather than fetched dynamically —
-if GROQ_MODEL changes, this table needs a matching update.
-"""
 PRICE_PER_MILLION = {
     "llama-3.3-70b-versatile": {"input": 0.59, "output": 0.79},
 }

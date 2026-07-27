@@ -1,9 +1,4 @@
-"""
-One function, one job: hand back a configured chat model. Every node imports
-this instead of constructing ChatGroq directly, so swapping providers or
-models later (Kimi K2, a different provider, etc.) is a one-line change here,
-not a search-and-replace across the codebase.
-"""
+
 import os
 
 from dotenv import load_dotenv
