@@ -6,11 +6,7 @@ DEFAULT_PRICE = {"input": 0.59, "output": 0.79}
 
 
 def extract_usage(raw_message) -> dict:
-    """
-    Pulls token counts from an AIMessage. Falls back to response_metadata
-    since usage_metadata has been reported empty in some with_structured_output
-    + include_raw setups — worth verifying it actually populates here, not assuming.
-    """
+
     usage = getattr(raw_message, "usage_metadata", None) or {}
     if usage.get("input_tokens") or usage.get("output_tokens"):
         return {"input_tokens": usage.get("input_tokens", 0), "output_tokens": usage.get("output_tokens", 0)}

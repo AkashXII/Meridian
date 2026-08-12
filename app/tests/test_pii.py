@@ -1,8 +1,4 @@
-"""
-Tests for redact(). These call the real Presidio analyzer/anonymizer (no
-mocking) since the whole risk here is a real false positive or false
-negative from the actual NLP model, not from our wrapper code.
-"""
+
 from app.pii import redact
 
 

@@ -1,9 +1,4 @@
-"""
-Tests for the deterministic fraud checks. Dates are computed relative to
-today, not hardcoded — a hardcoded incident_date would silently drift past
-the 60-day deadline as real time passes, breaking these tests months from
-now for a reason that has nothing to do with the code.
-"""
+
 from datetime import date, timedelta
 
 from app.fraud_rules import run_fraud_checks

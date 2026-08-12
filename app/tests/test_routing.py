@@ -1,14 +1,4 @@
-"""
-Tests for route_after_intake — the function whose return type (a single
-string vs. a list) is the entire fan-out mechanism in the graph.
 
-Note: this imports app.nodes, which builds the vector + keyword retrieval
-stores at module load time (see Phase 2 decisions). That means this test
-file pays that startup cost too, even though route_after_intake itself has
-zero dependency on retrieval. Cheap now that HF_HUB_OFFLINE=1 is set — a
-couple seconds, not the ~9s it used to be — but worth knowing why a "pure
-logic" test isn't instant.
-"""
 from app.nodes import route_after_intake
 
 

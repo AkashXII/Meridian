@@ -1,6 +1,4 @@
-"""
-PII detection and redaction, applied before any claim text reaches the LLM.
-"""
+
 import re
 
 from presidio_analyzer import AnalyzerEngine
