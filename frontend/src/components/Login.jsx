@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Login({ authToken, setAuthToken }) {
+export default function Login({ authToken, setAuthToken, setUserRole }) {
   const [tab, setTab] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,8 +23,6 @@ export default function Login({ authToken, setAuthToken }) {
         if (!res.ok) throw new Error(data.detail || 'Registration failed');
       }
 
-      // /login expects form-encoded data specifically, not JSON — a FastAPI
-      // OAuth2PasswordRequestForm requirement, not something we chose.
       const res = await fetch('http://localhost:8000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -33,6 +31,7 @@ export default function Login({ authToken, setAuthToken }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Login failed');
 
+      setUserRole(data.role || 'user');
       setAuthToken(data.access_token);
     } catch (err) {
       setError(err.message);
@@ -131,9 +130,7 @@ export default function Login({ authToken, setAuthToken }) {
         </main>
       </div>
 
-      <footer className="w-full bg-surface-container border-t border-outline-variant">
-
-      </footer>
+      <footer className="w-full bg-surface-container border-t border-outline-variant"></footer>
     </div>
   );
 }

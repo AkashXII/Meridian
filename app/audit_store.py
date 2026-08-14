@@ -1,4 +1,3 @@
-
 import json
 import os
 
@@ -24,6 +23,10 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
     coverage = state.get("coverage_decision")
     fraud = state.get("fraud_check")
 
+    final_decision = coverage.decision if coverage else None
+
+    review_status = "pending" if final_decision == "needs_review" else None
+
     row = {
         "raw_claim_text": state.get("raw_claim_text"),
         "redacted_claim_text": state.get("redacted_claim_text"),
@@ -37,7 +40,8 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
         "coverage_reasoning": coverage.reasoning if coverage else None,
         "fraud_flagged": fraud.flagged if fraud else None,
         "fraud_reason": fraud.reason if fraud else None,
-        "final_decision": coverage.decision if coverage else None,
+        "final_decision": final_decision,
+        "review_status": review_status,
         "latency_ms": latency_ms,
         "user_id": user_id,
         "input_tokens": state.get("input_tokens"),
@@ -51,15 +55,18 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
             policy_number, claim_type, incident_date, amount_requested,
             retrieved_docs, coverage_decision, coverage_reasoning,
             fraud_flagged, fraud_reason, final_decision, latency_ms,
-            input_tokens, output_tokens, estimated_cost_usd, user_id
+            input_tokens, output_tokens, estimated_cost_usd, user_id,
+            review_status
         ) VALUES (
             %(raw_claim_text)s, %(redacted_claim_text)s, %(pii_found)s,
             %(policy_number)s, %(claim_type)s, %(incident_date)s, %(amount_requested)s,
             %(retrieved_docs)s, %(coverage_decision)s, %(coverage_reasoning)s,
             %(fraud_flagged)s, %(fraud_reason)s, %(final_decision)s, %(latency_ms)s,
-            %(input_tokens)s, %(output_tokens)s, %(estimated_cost_usd)s, %(user_id)s
+            %(input_tokens)s, %(output_tokens)s, %(estimated_cost_usd)s, %(user_id)s,
+            %(review_status)s
         )
     """
+
     try:
         conn = _connect()
         with conn.cursor() as cur:
@@ -68,4 +75,3 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
         conn.close()
     except Exception as e:
         print(f"[audit_store] failed to record decision: {e}")
-

@@ -1,9 +1,4 @@
-"""
-Password hashing and JWT issuing/verification.
 
-Uses PyJWT rather than python-jose: the FastAPI docs historically recommended
-python-jose (so most tutorials use it), but it's effectively unmaintained.
-"""
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -30,19 +25,19 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
-def create_access_token(user_id: int, email: str) -> str:
+def create_access_token(user_id: int, email: str, role: str = "user") -> str:
     if not SECRET_KEY:
-        raise RuntimeError("JWT_SECRET not set — add it to .env")
+        raise RuntimeError("JWT_SECRET not set - add it to .env")
     payload = {
         "sub": str(user_id),
         "email": email,
+        "role": role,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRY_MINUTES),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
-
     credentials_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -62,4 +57,15 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     user_id = payload.get("sub")
     if user_id is None:
         raise credentials_error
-    return {"user_id": int(user_id), "email": payload.get("email")}
+    return {
+        "user_id": int(user_id),
+        "email": payload.get("email"),
+        "role": payload.get("role", "user"),
+    }
+
+
+def require_reviewer(user: dict = Depends(get_current_user)) -> dict:
+
+    if user.get("role") != "reviewer":
+        raise HTTPException(status_code=403, detail="Reviewer role required")
+    return user

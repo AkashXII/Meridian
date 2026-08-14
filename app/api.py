@@ -1,8 +1,8 @@
 
 import time
-from fastapi.middleware.cors import CORSMiddleware
-import pymysql
+
 from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from opentelemetry import propagate
 from pydantic import BaseModel, EmailStr
@@ -11,12 +11,20 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from app.audit_store import _connect, record_decision
-from app.auth import create_access_token, get_current_user, hash_password, verify_password
+from app.auth import (
+    create_access_token,
+    get_current_user,
+    hash_password,
+    require_reviewer,
+    verify_password,
+)
 from app.graph import build_graph
 from app.tracing import tracer
 
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI(title="Insurance Claims Platform")
+app = FastAPI(title="Meridian - Insurance Claims Platform")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,8 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 graph = build_graph()
 
@@ -37,6 +43,11 @@ class RegisterRequest(BaseModel):
 
 class ClaimRequest(BaseModel):
     claim_text: str
+
+
+class ReviewRequest(BaseModel):
+    decision: str  # "approved" or "denied"
+    notes: str = ""
 
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
@@ -67,14 +78,14 @@ def login(request: Request, form: OAuth2PasswordRequestForm = Depends()):
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, email, hashed_password FROM users WHERE email = %s",
+                "SELECT id, email, hashed_password, role FROM users WHERE email = %s",
                 (form.username,),
             )
             user = cur.fetchone()
     finally:
         conn.close()
 
-    # Same error for "no such user" and "wrong password" — distinguishing them
+    # Same error for "no such user" and "wrong password" - distinguishing them
     # tells an attacker which emails are registered.
     if not user or not verify_password(form.password, user["hashed_password"]):
         raise HTTPException(
@@ -83,8 +94,8 @@ def login(request: Request, form: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = create_access_token(user["id"], user["email"])
-    return {"access_token": token, "token_type": "bearer"}
+    token = create_access_token(user["id"], user["email"], user["role"])
+    return {"access_token": token, "token_type": "bearer", "role": user["role"]}
 
 
 @app.post("/claims")
@@ -127,9 +138,37 @@ def submit_claim(request: Request, body: ClaimRequest, user: dict = Depends(get_
         "latency_ms": latency_ms,
         "estimated_cost_usd": float(result["estimated_cost_usd"]),
     }
+
+
+@app.get("/claims")
+def my_claims(user: dict = Depends(get_current_user)):
+    """Only this user's claims - the whole point of the user_id column."""
+    conn = _connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, created_at, policy_number, claim_type, amount_requested,
+                       final_decision, fraud_flagged, latency_ms, review_status
+                FROM claim_decisions
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                """,
+                (user["user_id"],),
+            )
+            return {"claims": cur.fetchall()}
+    finally:
+        conn.close()
+
+
 @app.get("/claims/{claim_id}")
 def claim_detail(claim_id: int, user: dict = Depends(get_current_user)):
-
+    """
+    Full detail for one claim, filtered by user_id as well as claim_id - a user
+    can't view someone else's claim by guessing a URL. Returns 404 (not 403)
+    whether the claim doesn't exist or just isn't theirs; 403 would confirm to
+    an attacker that the ID exists at all.
+    """
     conn = _connect()
     try:
         with conn.cursor() as cur:
@@ -138,7 +177,8 @@ def claim_detail(claim_id: int, user: dict = Depends(get_current_user)):
                 SELECT id, created_at, policy_number, claim_type, incident_date,
                        amount_requested, retrieved_docs, coverage_decision,
                        coverage_reasoning, fraud_flagged, fraud_reason,
-                       final_decision, latency_ms, estimated_cost_usd
+                       final_decision, latency_ms, estimated_cost_usd,
+                       review_status, reviewed_at, review_notes
                 FROM claim_decisions
                 WHERE id = %s AND user_id = %s
                 """,
@@ -151,22 +191,83 @@ def claim_detail(claim_id: int, user: dict = Depends(get_current_user)):
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")
     return claim
-@app.get("/claims")
-def my_claims(user: dict = Depends(get_current_user)):
-    """Only this user's claims — the whole point of the user_id column."""
+
+
+# ---------------------------------------------------------------------------
+# Review queue - reviewer role only
+# ---------------------------------------------------------------------------
+
+
+@app.get("/review/queue")
+def review_queue(user: dict = Depends(require_reviewer)):
+    """
+    Claims the pipeline escalated to needs_review and that no human has
+    resolved yet. Not filtered by user_id - a reviewer is staff acting across
+    all policyholders, which is exactly why this route needs a role check
+    rather than the ownership check used on /claims.
+    """
     conn = _connect()
     try:
         with conn.cursor() as cur:
             cur.execute(
                 """
                 SELECT id, created_at, policy_number, claim_type, amount_requested,
-                       final_decision, fraud_flagged, latency_ms
+                       coverage_decision, coverage_reasoning, fraud_flagged,
+                       fraud_reason, final_decision, review_status
                 FROM claim_decisions
-                WHERE user_id = %s
-                ORDER BY created_at DESC
-                """,
-                (user["user_id"],),
+                WHERE review_status = 'pending'
+                ORDER BY created_at ASC
+                """
             )
-            return {"claims": cur.fetchall()}
+            return {"queue": cur.fetchall()}
     finally:
         conn.close()
+
+
+@app.post("/review/{claim_id}")
+def resolve_review(claim_id: int, body: ReviewRequest, user: dict = Depends(require_reviewer)):
+    """
+    Records a human reviewer's verdict on an escalated claim.
+
+    Note what is NOT touched: coverage_decision and coverage_reasoning keep the
+    pipeline's original output. The human verdict goes into final_decision plus
+    the review_* columns, so the audit trail preserves both what the system
+    decided and what a person decided - rather than overwriting the machine's
+    record with the human's.
+    """
+    if body.decision not in ("approved", "denied"):
+        raise HTTPException(status_code=400, detail="decision must be 'approved' or 'denied'")
+
+    conn = _connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT id, review_status FROM claim_decisions WHERE id = %s",
+                (claim_id,),
+            )
+            claim = cur.fetchone()
+            if not claim:
+                raise HTTPException(status_code=404, detail="Claim not found")
+            if claim["review_status"] != "pending":
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Claim is not pending review (status: {claim['review_status']})",
+                )
+
+            cur.execute(
+                """
+                UPDATE claim_decisions
+                SET review_status = %s,
+                    final_decision = %s,
+                    reviewed_by = %s,
+                    reviewed_at = NOW(),
+                    review_notes = %s
+                WHERE id = %s
+                """,
+                (body.decision, body.decision, user["user_id"], body.notes, claim_id),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return {"claim_id": claim_id, "review_status": body.decision, "reviewed_by": user["email"]}
