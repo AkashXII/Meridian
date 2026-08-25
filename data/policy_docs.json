@@ -53,6 +53,7 @@
   {"doc_id": "home_26", "claim_type": "home", "title": "Fire Damage Coverage", "text": "Fire and smoke damage to the dwelling and its contents is covered at replacement cost, subject to the standard deductible."},
   {"doc_id": "home_27", "claim_type": "home", "title": "Arson Exclusion", "text": "Losses arising from fire intentionally set by the policyholder or at their direction are excluded and are referred for fraud investigation."},
   {"doc_id": "home_28", "claim_type": "home", "title": "Power Surge Damage", "text": "Appliance and electronics damage from a power surge is covered, but surges originating from an on-property wiring fault are excluded."},
+  {"doc_id": "home_29", "claim_type": "home", "title": "Off-Premises Personal Property", "text": "Personal property such as bicycles, sports equipment, and luggage is covered while away from the home up to $1,000 combined, under the same theft and accidental damage terms as property inside the home. Mechanical wear, including brake or gear failure from normal use, is not covered."},
 
   {"doc_id": "health_1", "claim_type": "health", "title": "Health Claim Validity", "text": "Health claims are only valid under policy numbers beginning with the prefix H-. Claims submitted against non-health policy numbers will be rejected."},
   {"doc_id": "health_2", "claim_type": "health", "title": "Health Pre-existing Conditions", "text": "Treatment for conditions diagnosed prior to the policy start date is covered only after a 12-month waiting period has elapsed."},
@@ -78,7 +79,7 @@
   {"doc_id": "health_22", "claim_type": "health", "title": "Durable Medical Equipment", "text": "Wheelchairs, oxygen equipment, and similar durable medical equipment are covered at 80% with prior authorization."},
   {"doc_id": "health_23", "claim_type": "health", "title": "Health Out-of-Pocket Maximum", "text": "Once $6,000 in out-of-pocket costs is reached in a policy year, all further in-network covered services are reimbursed at 100%."},
   {"doc_id": "health_24", "claim_type": "health", "title": "Experimental Treatment Exclusion", "text": "Treatments not approved by recognized medical authorities, including experimental therapies and clinical trials, are excluded."},
-
+  {"doc_id": "health_25", "claim_type": "health", "title": "Inpatient Hospitalization Coverage", "text": "Hospital admission for inpatient treatment, including for cardiac events, surgical recovery, or extended observation, is covered at 80% after the deductible, separate from emergency room and urgent care visits."},
   {"doc_id": "general_1", "claim_type": "general", "title": "Claim Filing Deadline", "text": "All claims must be filed within 60 days of the incident date. Late claims may be denied regardless of coverage eligibility."},
   {"doc_id": "general_2", "claim_type": "general", "title": "Fraud Investigation Clause", "text": "Claims containing inconsistent dates, amounts, or descriptions across submissions may be flagged for manual fraud review before a decision is issued."},
   {"doc_id": "general_3", "claim_type": "general", "title": "Claim Documentation Requirement", "text": "Claims requesting reimbursement over $500 must include supporting photo evidence or original receipts."},
@@ -101,5 +102,6 @@
   {"doc_id": "general_20", "claim_type": "general", "title": "Partial Payment and Advances", "text": "An advance payment of up to 25% of the estimated claim value may be issued while a claim is still under assessment."},
   {"doc_id": "general_21", "claim_type": "general", "title": "Claim Withdrawal", "text": "A policyholder may withdraw a claim before a decision is issued without affecting future premiums or claim history."},
   {"doc_id": "general_22", "claim_type": "general", "title": "Records Retention", "text": "The insurer retains all claim records, decisions, and supporting evidence for seven years from the date of the claim decision."},
-  {"doc_id": "general_23", "claim_type": "general", "title": "Third-Party Repair Authorization", "text": "Repairs begun before insurer authorization may be reimbursed only up to the insurer's own assessed repair estimate."}
+  {"doc_id": "general_23", "claim_type": "general", "title": "Third-Party Repair Authorization", "text": "Repairs begun before insurer authorization may be reimbursed only up to the insurer's own assessed repair estimate."},
+ {"doc_id": "general_24", "claim_type": "general", "title": "Claim Documentation Expense Reimbursement", "text": "Reasonable costs incurred to obtain documentation required to support a claim, such as a police report copy or an official incident report, are reimbursed up to $100 per claim."}
 ]

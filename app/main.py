@@ -1,9 +1,7 @@
 import json
 import sys
 import time
-
 from opentelemetry import propagate
-
 from app.audit_store import record_decision
 from app.graph import build_graph
 from app.tracing import shutdown_tracing, tracer
@@ -11,16 +9,13 @@ from app.tracing import shutdown_tracing, tracer
 
 def main():
     graph = build_graph()
-
     if len(sys.argv) > 1:
         raw_text = " ".join(sys.argv[1:])
     else:
         with open("data/sample_claims.json") as f:
             samples = json.load(f)
         raw_text = samples[0]["text"]
-
     print(f"Claim input:\n{raw_text}\n{'-' * 50}")
-
     with tracer.start_as_current_span("claim_pipeline"):
         carrier = {}
         propagate.inject(carrier)

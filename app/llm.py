@@ -6,7 +6,8 @@ from langchain_groq import ChatGroq
 
 load_dotenv()
 
-
+def get_judge_llm():
+    return ChatGroq(model="qwen/qwen3.6-27b", temperature=0)
 def get_llm(temperature: float = 0):
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:

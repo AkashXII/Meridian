@@ -1,9 +1,8 @@
-
 PRICE_PER_MILLION = {
-    "llama-3.3-70b-versatile": {"input": 0.59, "output": 0.79},
+    "llama-3.3-70b-versatile": {"input": 0.59, "output": 0.79},  
+    "openai/gpt-oss-120b": {"input": 0.15, "output": 0.60},
 }
-DEFAULT_PRICE = {"input": 0.59, "output": 0.79}
-
+DEFAULT_PRICE = {"input": 0.15, "output": 0.60}
 
 def extract_usage(raw_message) -> dict:
 

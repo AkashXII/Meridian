@@ -1,8 +1,10 @@
 import json
 import os
 
+from overrides import final
 import pymysql
 from dotenv import load_dotenv
+from typer.cli import state
 
 load_dotenv()
 
@@ -22,10 +24,9 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
     extracted = state.get("extracted")
     coverage = state.get("coverage_decision")
     fraud = state.get("fraud_check")
-    final = state.get("final_decision")  
-    final_decision = coverage.decision if coverage else None
+    final = state.get("final_decision")          
     final_decision_value = final.decision if final else None
-    review_status = "pending" if final_decision == "needs_review" else None
+    review_status = "pending" if final_decision_value == "needs_review" else None
 
     row = {
         "raw_claim_text": state.get("raw_claim_text"),

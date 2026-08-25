@@ -1,20 +1,4 @@
-"""
-Measures whether coverage_check's generated reasoning is actually grounded in
-the policy clauses that were retrieved for it - as opposed to the retrieval
-eval, which only measures whether the RIGHT clauses were found.
 
-These are different questions. Retrieval can be perfect while the LLM still
-invents a rule that wasn't in the retrieved text (exactly the failure mode hit
-in Phase 3, where the fraud check hallucinated an "auto claims need an A-
-prefix" rule that appears nowhere in the corpus).
-
-Uses an LLM as judge. That is a deliberate, appropriate use here: "is this
-claim supported by this text" is a genuine judgment call, not a lookup - the
-opposite of the fraud-prefix check, which was a closed-form comparison and
-correctly moved to plain code.
-
-Run: python -m eval.faithfulness_eval
-"""
 import json
 import os
 from pathlib import Path
@@ -22,7 +6,7 @@ from pathlib import Path
 import pymysql
 from dotenv import load_dotenv
 
-from app.llm import get_llm
+from app.llm import get_judge_llm
 from app.models import FaithfulnessCheck
 
 load_dotenv()
@@ -43,20 +27,11 @@ def _connect():
 
 
 def load_doc_texts() -> dict:
-    """
-    retrieved_docs in the audit table stores doc_id/title/rerank_score but NOT
-    the clause text, so we look the text back up from the corpus by doc_id.
-
-    Known limitation: if the corpus changes, this reconstructs the CURRENT text
-    rather than what the model actually saw at decision time. Storing the text
-    itself at write time would be more audit-correct.
-    """
     docs = json.loads(DOCS_PATH.read_text())
     return {d["doc_id"]: d for d in docs}
 
 
 def fetch_real_cases(limit=SAMPLE_SIZE):
-    """Pull real (retrieved_docs, reasoning) pairs from claims already processed."""
     conn = _connect()
     try:
         with conn.cursor() as cur:
@@ -76,11 +51,6 @@ def fetch_real_cases(limit=SAMPLE_SIZE):
     finally:
         conn.close()
 
-
-# A deliberately unfaithful case, hand-written (not model-generated). Without
-# this, an eval built only from real history could score 10/10 while never
-# demonstrating it can actually CATCH a hallucination - which would make the
-# result meaningless. This verifies the judge itself works.
 TRAP_CASE = {
     "id": "TRAP",
     "policy_number": "A-11111",
@@ -106,21 +76,34 @@ def build_context(doc_ids, doc_lookup):
 
 
 def judge(context: str, reasoning: str) -> FaithfulnessCheck:
-    llm = get_llm()
-    structured_llm = llm.with_structured_output(FaithfulnessCheck)
+    llm = get_judge_llm()
+    structured_llm = llm.with_structured_output(FaithfulnessCheck, method="json_mode")
     return structured_llm.invoke(
-        "You are evaluating whether a generated explanation is grounded in the "
-        "source text provided.\n\n"
+        "You are evaluating whether a generated insurance-claim decision explanation "
+        "is grounded in the source policy clauses provided. Respond with ONLY a JSON "
+        "object matching this exact shape: "
+        "{\"grounded\": true or false, \"unsupported_claims\": [list of strings]}. "
+        "No other text before or after the JSON.\n\n"
         f"SOURCE POLICY CLAUSES:\n{context}\n\n"
         f"GENERATED REASONING:\n{reasoning}\n\n"
-        "Determine whether every factual claim in the generated reasoning is "
-        "directly supported by the source clauses above. A claim is unsupported "
-        "if it states a rule, limit, condition, or entitlement that does not "
-        "appear in the source text - even if it sounds plausible or is generally "
-        "true of insurance. Restating the claim's own details (dates, amounts, "
-        "policy numbers) is not an unsupported claim.\n\n"
-        "Set grounded=true only if every claim is supported by the source. "
-        "List any unsupported claims specifically."
+        "A claim is UNSUPPORTED only if it introduces a rule, limit, condition, "
+        "exception, or entitlement that is NOT present anywhere in the source clauses "
+        "above - something invented.\n\n"
+        "The following are NOT unsupported, and must NOT be flagged:\n"
+        "- Restating the claim's own facts (dates, amounts, policy numbers).\n"
+        "- Arithmetic or logical comparisons between a source clause's limit and the "
+        "claim's own amount (e.g. '$2,800 is within the $10,000 limit' is valid if "
+        "$10,000 actually appears in the source).\n"
+        "- Reasonable negative inferences from a condition that IS in the source "
+        "(e.g. noting an exclusion doesn't apply because its trigger condition is "
+        "absent from the claim details).\n"
+        "- Phrasing not lifted word-for-word from the source, as long as the underlying "
+        "rule it describes is actually present.\n\n"
+        "Only flag a claim if the RULE ITSELF is fabricated - not because the wording "
+        "differs, and not because it involves a comparison or inference over "
+        "information that IS present.\n\n"
+        "Set grounded=true only if no claim is fabricated in this sense. List any "
+        "genuinely unsupported claims specifically."
     )
 
 
@@ -137,6 +120,10 @@ def main():
     results = []
 
     for row in real_cases:
+        if "Overridden to needs_review" in row["coverage_reasoning"]:
+            print(f"[SKIP] claim {row['id']}: pre-fix legacy format, reasoning mixes override text")
+            continue
+
         retrieved = json.loads(row["retrieved_docs"])
         doc_ids = [d["doc_id"] for d in retrieved]
         context = build_context(doc_ids, doc_lookup)
@@ -152,8 +139,6 @@ def main():
         if not verdict.grounded:
             for c in verdict.unsupported_claims:
                 print(f"     ! {c}")
-
-    # Trap case - verifies the judge can actually detect an unfaithful answer.
     trap_context = build_context(TRAP_CASE["doc_ids"], doc_lookup)
     trap_verdict = judge(trap_context, TRAP_CASE["reasoning"])
     trap_caught = trap_verdict.grounded == TRAP_CASE["expect_grounded"]

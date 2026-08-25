@@ -7,7 +7,6 @@ FILING_DEADLINE_DAYS = 60
 
 
 def _check_policy_prefix(claim: ExtractedClaim) -> str | None:
-    """The H- prefix is reserved for health policies (policy_docs: health_1)."""
     if not claim.policy_number:
         return None
     is_h_prefix = claim.policy_number.upper().startswith("H-")
