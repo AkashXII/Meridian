@@ -56,6 +56,9 @@ def main():
     if result.get("fraud_check"):
         print("\nFraud check:")
         print(result["fraud_check"].model_dump_json(indent=2))
+    if result.get("final_decision"):
+        print("\nFinal decision:")
+        print(result["final_decision"].model_dump_json(indent=2))
 
     print(
         f"\nTokens: {result['input_tokens']} in / {result['output_tokens']} out "

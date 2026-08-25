@@ -9,6 +9,7 @@ class ClaimState(TypedDict):
     missing_fields: List[str]
     coverage_decision: Optional[CoverageDecision]
     fraud_check: Optional[FraudCheck]
+    final_decision: Optional[CoverageDecision]
     retrieved_docs: List[dict]
     trace_carrier: dict
     input_tokens: int

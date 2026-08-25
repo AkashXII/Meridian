@@ -22,9 +22,9 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
     extracted = state.get("extracted")
     coverage = state.get("coverage_decision")
     fraud = state.get("fraud_check")
-
+    final = state.get("final_decision")  
     final_decision = coverage.decision if coverage else None
-
+    final_decision_value = final.decision if final else None
     review_status = "pending" if final_decision == "needs_review" else None
 
     row = {
@@ -40,7 +40,7 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
         "coverage_reasoning": coverage.reasoning if coverage else None,
         "fraud_flagged": fraud.flagged if fraud else None,
         "fraud_reason": fraud.reason if fraud else None,
-        "final_decision": final_decision,
+        "final_decision": final_decision_value,
         "review_status": review_status,
         "latency_ms": latency_ms,
         "user_id": user_id,

@@ -46,7 +46,7 @@ class ClaimRequest(BaseModel):
 
 
 class ReviewRequest(BaseModel):
-    decision: str  # "approved" or "denied"
+    decision: str  
     notes: str = ""
 
 
@@ -67,10 +67,7 @@ def register(body: RegisterRequest):
         return {"email": body.email, "message": "registered"}
     finally:
         conn.close()
-
-
-# Rate limited because this is the endpoint worth brute-forcing. Blanket-
-# limiting every route would mostly just annoy legitimate users.
+#ratelimit
 @app.post("/login")
 @limiter.limit("5/minute")
 def login(request: Request, form: OAuth2PasswordRequestForm = Depends()):
@@ -84,9 +81,6 @@ def login(request: Request, form: OAuth2PasswordRequestForm = Depends()):
             user = cur.fetchone()
     finally:
         conn.close()
-
-    # Same error for "no such user" and "wrong password" - distinguishing them
-    # tells an attacker which emails are registered.
     if not user or not verify_password(form.password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -127,12 +121,13 @@ def submit_claim(request: Request, body: ClaimRequest, user: dict = Depends(get_
     record_decision(result, latency_ms, user_id=user["user_id"])
 
     coverage = result.get("coverage_decision")
+    final = result.get("final_decision")
     fraud = result.get("fraud_check")
     return {
         "extracted": result["extracted"].model_dump() if result["extracted"] else None,
         "missing_fields": result["missing_fields"],
-        "decision": coverage.decision if coverage else None,
-        "reasoning": coverage.reasoning if coverage else None,
+        "decision": coverage.decision if final else None,
+        "reasoning": coverage.reasoning if final else None,
         "fraud_flagged": fraud.flagged if fraud else None,
         "fraud_reason": fraud.reason if fraud else None,
         "latency_ms": latency_ms,
@@ -142,7 +137,6 @@ def submit_claim(request: Request, body: ClaimRequest, user: dict = Depends(get_
 
 @app.get("/claims")
 def my_claims(user: dict = Depends(get_current_user)):
-    """Only this user's claims - the whole point of the user_id column."""
     conn = _connect()
     try:
         with conn.cursor() as cur:
@@ -163,12 +157,7 @@ def my_claims(user: dict = Depends(get_current_user)):
 
 @app.get("/claims/{claim_id}")
 def claim_detail(claim_id: int, user: dict = Depends(get_current_user)):
-    """
-    Full detail for one claim, filtered by user_id as well as claim_id - a user
-    can't view someone else's claim by guessing a URL. Returns 404 (not 403)
-    whether the claim doesn't exist or just isn't theirs; 403 would confirm to
-    an attacker that the ID exists at all.
-    """
+
     conn = _connect()
     try:
         with conn.cursor() as cur:
@@ -192,20 +181,9 @@ def claim_detail(claim_id: int, user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Claim not found")
     return claim
 
-
-# ---------------------------------------------------------------------------
-# Review queue - reviewer role only
-# ---------------------------------------------------------------------------
-
-
+#reviews
 @app.get("/review/queue")
 def review_queue(user: dict = Depends(require_reviewer)):
-    """
-    Claims the pipeline escalated to needs_review and that no human has
-    resolved yet. Not filtered by user_id - a reviewer is staff acting across
-    all policyholders, which is exactly why this route needs a role check
-    rather than the ownership check used on /claims.
-    """
     conn = _connect()
     try:
         with conn.cursor() as cur:
@@ -226,15 +204,6 @@ def review_queue(user: dict = Depends(require_reviewer)):
 
 @app.post("/review/{claim_id}")
 def resolve_review(claim_id: int, body: ReviewRequest, user: dict = Depends(require_reviewer)):
-    """
-    Records a human reviewer's verdict on an escalated claim.
-
-    Note what is NOT touched: coverage_decision and coverage_reasoning keep the
-    pipeline's original output. The human verdict goes into final_decision plus
-    the review_* columns, so the audit trail preserves both what the system
-    decided and what a person decided - rather than overwriting the machine's
-    record with the human's.
-    """
     if body.decision not in ("approved", "denied"):
         raise HTTPException(status_code=400, detail="decision must be 'approved' or 'denied'")
 

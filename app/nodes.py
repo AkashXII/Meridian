@@ -129,19 +129,16 @@ def final_decision_node(state: ClaimState) -> dict:
         fraud = state["fraud_check"]
 
         if fraud.flagged and coverage.decision == "approved":
-            overridden = CoverageDecision(
+            final = CoverageDecision(
                 decision="needs_review",
-                reasoning=(
-                    f"Original coverage assessment: {coverage.reasoning} "
-                    f"Overridden to needs_review — fraud flag: {fraud.reason}"
-                ),
+                reasoning=f"Escalated for human review — fraud flag: {fraud.reason}",
             )
             span.set_attribute("final_decision.overridden", True)
-            return {"coverage_decision": overridden}
+        else:
+            final = coverage
+            span.set_attribute("final_decision.overridden", False)
 
-        span.set_attribute("final_decision.overridden", False)
-    return {}
-
+    return {"final_decision": final}
 
 def route_after_intake(state: ClaimState):
     if state["missing_fields"]:
