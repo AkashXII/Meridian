@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 from app.token_usage import extract_usage, estimate_cost
 from opentelemetry import propagate
-
+from app.general_rules import check_processing_requirements
 from app.fraud_rules import run_fraud_checks
 from app.llm import get_llm
 from app.models import CoverageDecision, ExtractedClaim, FraudCheck
@@ -127,6 +127,10 @@ def final_decision_node(state: ClaimState) -> dict:
     with tracer.start_as_current_span("final_decision", context=parent_ctx) as span:
         coverage = state["coverage_decision"]
         fraud = state["fraud_check"]
+        extracted = state.get("extracted")
+
+        amount = extracted.amount_requested if extracted else None
+        requirements = check_processing_requirements(amount)
 
         if fraud.flagged and coverage.decision == "approved":
             final = CoverageDecision(
@@ -135,11 +139,16 @@ def final_decision_node(state: ClaimState) -> dict:
             )
             span.set_attribute("final_decision.overridden", True)
         else:
-            final = coverage
+            final = CoverageDecision(decision=coverage.decision, reasoning=coverage.reasoning)
             span.set_attribute("final_decision.overridden", False)
+        if requirements and final.decision != "denied":
+            final = CoverageDecision(
+                decision=final.decision,
+                reasoning=final.reasoning + " Processing requirements: " + " ".join(requirements),
+            )
+            span.set_attribute("final_decision.requirements", len(requirements))
 
     return {"final_decision": final}
-
 def route_after_intake(state: ClaimState):
     if state["missing_fields"]:
         return "clarification_needed"

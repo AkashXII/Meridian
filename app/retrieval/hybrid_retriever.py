@@ -1,7 +1,4 @@
-"""
-Combines vector + keyword hits into one candidate set, then uses a
-cross-encoder to re-score each candidate directly against the query.
-"""
+
 from sentence_transformers import CrossEncoder
 
 from app.retrieval.keyword_store import query_keyword_store
@@ -13,7 +10,8 @@ _reranker = None
 def get_reranker():
     global _reranker
     if _reranker is None:
-        _reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+        _reranker = CrossEncoder("BAAI/bge-reranker-base")
     return _reranker
 
 

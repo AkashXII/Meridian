@@ -1,0 +1,23 @@
+**Policy Eligibility.** Health claims are valid only under policy numbers beginning with the prefix H-. Claims submitted against a non-health policy number will be rejected regardless of the nature of the claim.
+
+**Annual Deductible.** A $1,000 annual deductible must be satisfied each policy year before the plan begins reimbursing covered medical expenses.
+
+**General Medical Treatment Coverage.** Medically necessary treatment for a covered injury or illness is covered at eighty percent after the deductible. This includes physician visits, diagnostic testing, and treatment for injuries such as broken bones, fractures, sprains, cuts, wounds, animal bites, scratches, infections, and burns, regardless of where or how the injury occurred.
+
+**Emergency Room and Urgent Care.** Emergency room visits are reimbursed at eighty percent after the deductible. Urgent care visits, which are typically for less severe conditions, are reimbursed at a higher rate of ninety percent after the deductible.
+
+**Inpatient Hospitalization.** Hospital admission for inpatient treatment, including for cardiac events, surgical recovery, or extended observation, is covered at eighty percent after the deductible, separate from emergency room and urgent care visits.
+
+**Ambulance Services.** Ground ambulance transport is covered at eighty percent after the deductible. Air ambulance transport requires prior authorization except in life-threatening emergencies.
+
+**Prescription Drug Coverage.** Generic prescription medications are covered at ninety percent. Brand-name equivalents of an available generic are covered at only sixty percent. Specialty medications require prior authorization before the first fill.
+
+**Mental Health and Substance Use Treatment.** Mental health and behavioral health services are covered at the same reimbursement rate as comparable physical health services, with no separate visit limit. Inpatient substance use treatment is covered for up to thirty days per policy year following prior authorization.
+
+**Maternity and Newborn Coverage.** Maternity coverage requires at least ten months of continuous enrollment prior to the expected delivery date. A newborn is automatically covered for the first thirty days after birth, after which formal enrollment is required to continue coverage.
+
+**Dental and Vision Exclusions.** Routine dental care and routine vision care, including eye exams and corrective lenses, are excluded from medical coverage. An exception applies to dental treatment required due to a covered accidental injury to the jaw or mouth, which is covered under medical.
+
+**Elective and Cosmetic Procedure Exclusion.** Procedures performed primarily for appearance rather than medical necessity are excluded, even when performed after a covered injury. Reconstructive surgery required to restore function after a covered injury or illness remains covered.
+
+**Out-of-Network Care.** Care from an out-of-network provider is reimbursed at only fifty percent of the standard rate, except in a genuine emergency, in which case out-of-network emergency care is reimbursed at the standard in-network rate.

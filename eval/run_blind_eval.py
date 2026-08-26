@@ -9,7 +9,7 @@ from eval.run_eval import precision_at_k, recall_at_k, reciprocal_rank
 
 DOCS_PATH = Path(__file__).parent.parent / "data" / "policy_docs.json"
 ORIGINAL_SET = Path(__file__).parent / "retrieval_eval_set.json"
-BLIND_SET = Path(__file__).parent / "blind_eval_set.json"
+BLIND_SET = Path(__file__).parent / "blind_eval_set_v2.json"
 K = 3
 
 

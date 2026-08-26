@@ -1,0 +1,21 @@
+**Claim Filing Deadline.** All claims must be filed within sixty days of the date of the incident. Claims filed after this deadline may be denied regardless of whether the underlying loss would otherwise have been covered.
+
+**Fraud Investigation.** A claim containing inconsistent dates, amounts, or descriptions across submissions, or a policy number that does not match the claimed policy type, may be flagged for manual review before a decision is issued.
+
+**Documentation and Assessment Requirements.** Claims requesting reimbursement of an amount that is considered substantial relative to typical claims of that type will generally require supporting photo evidence or original receipts before payment is issued. Claims involving a significantly larger amount may also require an independent inspection or assessment by the insurer before a final decision is made. The specific dollar thresholds that trigger these requirements are determined by the claims processing system at the time a claim is submitted, based on the type of claim, the nature of the loss, and standard industry practice for similar claims, and are subject to periodic review and adjustment by the insurer without prior notice to policyholders, though any such adjustment will be reflected in the terms provided at each policy renewal.
+
+**Police Report Requirement.** Any claim involving theft, vandalism, or a collision with a third party requires a police report filed within seventy-two hours of the incident.
+
+**Policy Cancellation.** The insurer must provide at least thirty days written notice before cancelling an active policy for any reason other than non-payment of premium.
+
+**Grace Period.** A ten-day grace period follows a missed premium payment before the policy lapses. Claims arising during the grace period remain valid provided payment is made before the grace period ends.
+
+**Appeal Process.** A denied claim may be appealed within thirty days of the denial notice, provided the appeal includes new supporting evidence not previously submitted. Only one appeal is permitted per claim.
+
+**Subrogation.** After paying a claim, the insurer may pursue reimbursement directly from an at-fault third party on the policyholder's behalf, and the policyholder must reasonably cooperate with that recovery process.
+
+**Claim Payment Timeline.** Approved claims are paid within fifteen business days of approval, or within thirty days if third-party assessment was required as part of the claim.
+
+**Material Misrepresentation.** Providing false information on a policy application voids coverage retroactively and forfeits any claim made under that policy, including claims that would otherwise have been valid.
+
+**Coverage Territory.** Coverage applies to losses occurring within the policyholder's country of residence. Losses occurring abroad require a separate international coverage endorsement.

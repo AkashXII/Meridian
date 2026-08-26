@@ -82,7 +82,6 @@
   {"doc_id": "health_25", "claim_type": "health", "title": "Inpatient Hospitalization Coverage", "text": "Hospital admission for inpatient treatment, including for cardiac events, surgical recovery, or extended observation, is covered at 80% after the deductible, separate from emergency room and urgent care visits."},
   {"doc_id": "general_1", "claim_type": "general", "title": "Claim Filing Deadline", "text": "All claims must be filed within 60 days of the incident date. Late claims may be denied regardless of coverage eligibility."},
   {"doc_id": "general_2", "claim_type": "general", "title": "Fraud Investigation Clause", "text": "Claims containing inconsistent dates, amounts, or descriptions across submissions may be flagged for manual fraud review before a decision is issued."},
-  {"doc_id": "general_3", "claim_type": "general", "title": "Claim Documentation Requirement", "text": "Claims requesting reimbursement over $500 must include supporting photo evidence or original receipts."},
   {"doc_id": "general_4", "claim_type": "general", "title": "Police Report Requirement", "text": "Any claim involving theft, vandalism, or a third-party collision requires a police report filed within 72 hours of the incident."},
   {"doc_id": "general_5", "claim_type": "general", "title": "Policy Cancellation Notice", "text": "The insurer must provide at least 30 days written notice before cancelling an active policy for any reason."},
   {"doc_id": "general_6", "claim_type": "general", "title": "Grace Period for Premium Payment", "text": "Policyholders are given a 10-day grace period after a missed premium payment before the policy lapses."},
@@ -92,7 +91,6 @@
   {"doc_id": "general_10", "claim_type": "general", "title": "Appeal Process", "text": "A denied claim may be appealed within 30 days of the denial notice, provided the appeal includes new supporting evidence."},
   {"doc_id": "general_11", "claim_type": "general", "title": "Second Appeal Limitation", "text": "Only one appeal is permitted per claim; a second denial is final unless new material evidence emerges within the original 30-day window."},
   {"doc_id": "general_12", "claim_type": "general", "title": "Claim Payment Timeline", "text": "Approved claims are paid within 15 business days of approval, or within 30 days where third-party assessment is required."},
-  {"doc_id": "general_13", "claim_type": "general", "title": "Independent Assessment Rights", "text": "The insurer may require an independent inspection or assessment before approving any claim exceeding $10,000."},
   {"doc_id": "general_14", "claim_type": "general", "title": "Material Misrepresentation", "text": "Providing false information on a policy application voids coverage retroactively and forfeits all claims made under that policy."},
   {"doc_id": "general_15", "claim_type": "general", "title": "Coverage Territory", "text": "Coverage applies only to losses occurring within the country of issue; international losses require a travel endorsement."},
   {"doc_id": "general_16", "claim_type": "general", "title": "Policy Renewal Terms", "text": "Policies renew automatically each year unless cancelled in writing at least 15 days before the renewal date."},
@@ -103,5 +101,386 @@
   {"doc_id": "general_21", "claim_type": "general", "title": "Claim Withdrawal", "text": "A policyholder may withdraw a claim before a decision is issued without affecting future premiums or claim history."},
   {"doc_id": "general_22", "claim_type": "general", "title": "Records Retention", "text": "The insurer retains all claim records, decisions, and supporting evidence for seven years from the date of the claim decision."},
   {"doc_id": "general_23", "claim_type": "general", "title": "Third-Party Repair Authorization", "text": "Repairs begun before insurer authorization may be reimbursed only up to the insurer's own assessed repair estimate."},
- {"doc_id": "general_24", "claim_type": "general", "title": "Claim Documentation Expense Reimbursement", "text": "Reasonable costs incurred to obtain documentation required to support a claim, such as a police report copy or an official incident report, are reimbursed up to $100 per claim."}
+ {"doc_id": "general_24", "claim_type": "general", "title": "Claim Documentation Expense Reimbursement", "text": "Reasonable costs incurred to obtain documentation required to support a claim, such as a police report copy or an official incident report, are reimbursed up to $100 per claim."},
+   {
+    "doc_id": "auto_26",
+    "claim_type": "auto",
+    "title": "Rideshare Coverage Endorsement",
+    "text": "Drivers using their vehicle for rideshare or delivery platforms are covered only if a rideshare endorsement is active; the coverage gap during passenger pickup is otherwise excluded."
+  },
+  {
+    "doc_id": "auto_27",
+    "claim_type": "auto",
+    "title": "Electric Vehicle Battery Coverage",
+    "text": "Damage to an electric vehicle's traction battery from a covered incident is reimbursed at actual cash value, but degradation from normal charging cycles is excluded."
+  },
+  {
+    "doc_id": "auto_28",
+    "claim_type": "auto",
+    "title": "Key Replacement Coverage",
+    "text": "Replacement of lost or stolen vehicle keys and key fobs is covered up to $500 per policy year, with no deductible."
+  },
+  {
+    "doc_id": "auto_29",
+    "claim_type": "auto",
+    "title": "Towing Distance Limit",
+    "text": "Covered towing is limited to the nearest qualified repair facility; mileage beyond that is billed to the policyholder."
+  },
+  {
+    "doc_id": "auto_30",
+    "claim_type": "auto",
+    "title": "Child Safety Seat Replacement",
+    "text": "Child safety seats installed in a vehicle involved in a covered collision are replaced at full cost regardless of visible damage."
+  },
+  {
+    "doc_id": "auto_31",
+    "claim_type": "auto",
+    "title": "Flood Damage to Vehicle",
+    "text": "Flood and water damage to a vehicle is covered under comprehensive coverage, unlike home flood damage which requires a separate rider."
+  },
+  {
+    "doc_id": "auto_32",
+    "claim_type": "auto",
+    "title": "Repossession Exclusion",
+    "text": "Loss of a vehicle through lawful repossession by a lienholder is not a covered loss under any coverage type."
+  },
+  {
+    "doc_id": "auto_33",
+    "claim_type": "auto",
+    "title": "Trailer and Towed Property",
+    "text": "A trailer towed by the insured vehicle is covered for physical damage up to $2,500 only if declared on the policy."
+  },
+  {
+    "doc_id": "auto_34",
+    "claim_type": "auto",
+    "title": "Custom Paint and Wrap",
+    "text": "Custom paint jobs and vehicle wraps are covered up to $1,000 unless separately scheduled with documented value."
+  },
+  {
+    "doc_id": "auto_35",
+    "claim_type": "auto",
+    "title": "Roadside Fuel Delivery",
+    "text": "Emergency fuel delivery is covered under roadside assistance, but the cost of the fuel itself is the policyholder's responsibility."
+  },
+  {
+    "doc_id": "auto_36",
+    "claim_type": "auto",
+    "title": "Loss of Personal Electronics in Vehicle",
+    "text": "Portable electronics permanently installed in the vehicle are covered, but loose personal devices such as phones and laptops fall under home contents coverage, not auto."
+  },
+  {
+    "doc_id": "auto_37",
+    "claim_type": "auto",
+    "title": "Pothole and Road Hazard Damage",
+    "text": "Damage to tires and wheels from potholes or road debris is treated as a collision claim and subject to the collision deductible."
+  },
+  {
+    "doc_id": "home_30",
+    "claim_type": "home",
+    "title": "Home Office Equipment",
+    "text": "Business equipment used in a home office is covered up to $2,500 for a covered peril, separate from the general electronics sublimit."
+  },
+  {
+    "doc_id": "home_31",
+    "claim_type": "home",
+    "title": "Spoiled Food from Power Outage",
+    "text": "Food spoilage resulting from a covered power outage exceeding 24 hours is reimbursed up to $500 with no deductible."
+  },
+  {
+    "doc_id": "home_32",
+    "claim_type": "home",
+    "title": "Identity Theft Recovery",
+    "text": "Costs to restore identity after identity theft, including legal fees and lost wages, are covered up to $15,000 when the identity theft recovery endorsement is active."
+  },
+  {
+    "doc_id": "home_33",
+    "claim_type": "home",
+    "title": "Water Heater Failure",
+    "text": "Sudden failure of a water heater causing water damage is covered, but replacement of the water heater unit itself due to age or wear is excluded."
+  },
+  {
+    "doc_id": "home_34",
+    "claim_type": "home",
+    "title": "Solar Panel Coverage",
+    "text": "Roof-mounted solar panels are covered for physical damage from covered perils up to the dwelling limit, provided they were professionally installed."
+  },
+  {
+    "doc_id": "home_35",
+    "claim_type": "home",
+    "title": "Fence and Gate Damage",
+    "text": "Fences, gates, and retaining walls are covered up to 5% of the dwelling coverage limit, separate from the detached structures limit."
+  },
+  {
+    "doc_id": "home_36",
+    "claim_type": "home",
+    "title": "Debris Removal",
+    "text": "Removal of debris following a covered loss is included up to 5% of the total claim amount, above the dwelling coverage limit."
+  },
+  {
+    "doc_id": "home_37",
+    "claim_type": "home",
+    "title": "Ordinance and Law Upgrade",
+    "text": "Additional costs to rebuild to current building codes after a covered loss are reimbursed up to 10% of the dwelling coverage limit."
+  },
+  {
+    "doc_id": "home_38",
+    "claim_type": "home",
+    "title": "Guest Property Coverage",
+    "text": "Property belonging to a guest and damaged in the insured home during a covered loss is reimbursed up to $500, at the policyholder's discretion."
+  },
+  {
+    "doc_id": "home_39",
+    "claim_type": "home",
+    "title": "Trampoline and Recreational Equipment",
+    "text": "Liability for injuries involving a trampoline is excluded unless the trampoline has a safety net and was disclosed on the policy."
+  },
+  {
+    "doc_id": "home_40",
+    "claim_type": "home",
+    "title": "Home Sharing Exclusion",
+    "text": "Losses occurring while the home is rented to short-term guests through a home-sharing platform are excluded without a home-sharing endorsement."
+  },
+  {
+    "doc_id": "home_41",
+    "claim_type": "home",
+    "title": "Landscaping and Trees",
+    "text": "Trees, shrubs, and landscaping are covered up to $500 per item for specific perils such as fire or vandalism, but not for wind or disease."
+  },
+  {
+    "doc_id": "health_26",
+    "claim_type": "health",
+    "title": "Ambulance Air Transport",
+    "text": "Emergency air ambulance transport is covered at 70% after the deductible when ground transport is not medically feasible."
+  },
+  {
+    "doc_id": "health_27",
+    "claim_type": "health",
+    "title": "Chronic Condition Management",
+    "text": "Ongoing management of chronic conditions such as diabetes, including supplies and monitoring, is covered at 80% after the deductible."
+  },
+  {
+    "doc_id": "health_28",
+    "claim_type": "health",
+    "title": "Hearing Aid Coverage",
+    "text": "Hearing aids are covered up to $1,500 per ear every three years, following an audiologist's assessment."
+  },
+  {
+    "doc_id": "health_29",
+    "claim_type": "health",
+    "title": "Skilled Nursing Facility",
+    "text": "Care in a skilled nursing facility following a covered hospitalization is covered for up to 60 days per policy year."
+  },
+  {
+    "doc_id": "health_30",
+    "claim_type": "health",
+    "title": "Home Health Care",
+    "text": "Medically necessary home health visits ordered by a physician are covered at 80% for up to 40 visits per policy year."
+  },
+  
+  {
+    "doc_id": "health_31",
+    "claim_type": "health",
+    "title": "Telemedicine Visits",
+    "text": "Virtual physician consultations are covered at 90% after the deductible, at the same rate as equivalent in-person visits."
+  },
+  {
+    "doc_id": "general_25",
+    "claim_type": "general",
+    "title": "Assignment of Benefits",
+    "text": "A policyholder may assign claim benefits directly to a service provider only with written insurer consent."
+  },
+  {
+    "doc_id": "general_26",
+    "claim_type": "general",
+    "title": "Depreciation and Actual Cash Value",
+    "text": "Claims settled at actual cash value deduct depreciation based on the item's age and condition at the time of loss."
+  },
+  {
+    "doc_id": "general_27",
+    "claim_type": "general",
+    "title": "Replacement Cost Settlement",
+    "text": "Replacement cost coverage reimburses the full cost to replace an item without depreciation, provided the item is actually repaired or replaced."
+  },
+  {
+    "doc_id": "general_28",
+    "claim_type": "general",
+    "title": "Multiple Policy Coordination",
+    "text": "When two policies cover the same loss, each pays its proportional share and total reimbursement cannot exceed the actual loss."
+  },
+  {
+    "doc_id": "general_29",
+    "claim_type": "general",
+    "title": "Catastrophe Deductible",
+    "text": "Losses arising from a declared catastrophe event are subject to a separate catastrophe deductible higher than the standard deductible."
+  },
+  {
+    "doc_id": "general_30",
+    "claim_type": "general",
+    "title": "Proof of Loss Deadline",
+    "text": "A signed proof of loss statement must be submitted within 90 days of the insurer's request or the claim may be denied."
+  },
+  {
+    "doc_id": "general_31",
+    "claim_type": "general",
+    "title": "Claim Reopening",
+    "text": "A closed claim may be reopened within one year if new documentation materially affecting the settlement is provided."
+  },
+  {
+    "doc_id": "auto_38",
+    "claim_type": "auto",
+    "title": "Rental Car While Traveling",
+    "text": "A rental vehicle used by the policyholder while traveling is extended the same collision and comprehensive coverage as the insured vehicle, within the coverage territory."
+  },
+  {
+    "doc_id": "auto_39",
+    "claim_type": "auto",
+    "title": "Vehicle Storage Coverage",
+    "text": "A vehicle placed in long-term storage may reduce to comprehensive-only coverage, suspending collision and liability premiums during the storage period."
+  },
+  {
+    "doc_id": "auto_40",
+    "claim_type": "auto",
+    "title": "Teen Driver Surcharge Conditions",
+    "text": "Adding a newly licensed driver under 21 requires disclosure within 30 days; an undisclosed teen driver at fault may result in claim denial."
+  },
+  {
+    "doc_id": "auto_41",
+    "claim_type": "auto",
+    "title": "Salvage Title Limitation",
+    "text": "A vehicle with a salvage or rebuilt title is eligible for liability coverage only, not comprehensive or collision."
+  },
+  {
+    "doc_id": "home_42",
+    "claim_type": "home",
+    "title": "Sump Pump Failure Coverage",
+    "text": "Water damage from sump pump or drainage system failure is covered only if a water backup endorsement is active on the policy."
+  },
+  {
+    "doc_id": "home_43",
+    "claim_type": "home",
+    "title": "Loss Assessment Coverage",
+    "text": "A homeowner's share of a condo or HOA loss assessment is covered up to $5,000 per assessment for covered perils."
+  },
+  {
+    "doc_id": "home_44",
+    "claim_type": "home",
+    "title": "Refrigerated Property",
+    "text": "Loss of refrigerated medication or food due to equipment failure is covered up to $500 with no deductible."
+  },
+  {
+    "doc_id": "home_45",
+    "claim_type": "home",
+    "title": "Emergency Repairs Reimbursement",
+    "text": "Reasonable emergency repairs made to prevent further damage after a covered loss are reimbursed even before an adjuster inspection."
+  },
+  {
+    "doc_id": "home_46",
+    "claim_type": "home",
+    "title": "Collapse Coverage",
+    "text": "Sudden collapse of a structure from a specified cause such as hidden decay or the weight of ice is covered, but gradual settling is excluded."
+  },
+  {
+    "doc_id": "home_47",
+    "claim_type": "home",
+    "title": "Scheduled Valuables",
+    "text": "High-value items such as art, jewelry, and collectibles may be individually scheduled for full coverage above the standard sublimit."
+  },
+  {
+    "doc_id": "home_48",
+    "claim_type": "home",
+    "title": "Building Materials Theft",
+    "text": "Theft of building materials during a covered renovation is limited to $1,000 unless the materials are secured and documented."
+  },
+  {
+    "doc_id": "health_32",
+    "claim_type": "health",
+    "title": "Diagnostic Imaging",
+    "text": "MRI, CT, and other advanced imaging is covered at 80% after the deductible and may require prior authorization for non-emergency use."
+  },
+  {
+    "doc_id": "health_33",
+    "claim_type": "health",
+    "title": "Outpatient Surgery",
+    "text": "Outpatient surgical procedures are covered at 80% after the deductible when performed at an in-network facility."
+  },
+  {
+    "doc_id": "health_34",
+    "claim_type": "health",
+    "title": "Allergy Testing and Treatment",
+    "text": "Allergy testing and immunotherapy are covered at 80% after the deductible when medically necessary."
+  },
+  {
+    "doc_id": "health_35",
+    "claim_type": "health",
+    "title": "Second Opinion Coverage",
+    "text": "A second medical opinion for a serious diagnosis or recommended surgery is covered at the standard specialist rate."
+  },
+  {
+    "doc_id": "health_36",
+    "claim_type": "health",
+    "title": "Fertility Treatment Limitation",
+    "text": "Fertility diagnostics are covered, but assisted reproductive procedures such as IVF are excluded without a fertility rider."
+  },
+  {"doc_id": "health_37", "claim_type": "health", "title": "General Medical Treatment Coverage", "text": "Medically necessary treatment for a covered injury or illness, including physician services, diagnostic tests, fractures, wounds, and follow-up care, is covered at 80% after the deductible. This applies to injuries such as broken bones, lacerations, infections, and sprains regardless of where they occurred."},
+  {
+    "doc_id": "general_32",
+    "claim_type": "general",
+    "title": "Waiting Period for New Policies",
+    "text": "A 30-day waiting period applies to new policies before non-accident claims become eligible, unless transferring from prior continuous coverage."
+  },
+  {
+    "doc_id": "general_33",
+    "claim_type": "general",
+    "title": "Cooling-Off Cancellation",
+    "text": "A policyholder may cancel a new policy within 14 days of purchase for a full premium refund if no claim has been filed."
+  },
+  {
+    "doc_id": "general_34",
+    "claim_type": "general",
+    "title": "Fraudulent Claim Forfeiture",
+    "text": "A claim found to contain material misrepresentation or fabricated evidence is denied in full and may void the policy."
+  },
+  {
+    "doc_id": "general_35",
+    "claim_type": "general",
+    "title": "Partial Loss Settlement",
+    "text": "A partial loss is settled based on the cost to repair the damaged portion, not the total value of the insured property."
+  },
+  {
+    "doc_id": "general_36",
+    "claim_type": "general",
+    "title": "Named Insured Definition",
+    "text": "Coverage extends to the named insured and resident family members; non-resident individuals require separate named endorsement."
+  },
+  {
+    "doc_id": "general_37",
+    "claim_type": "general",
+    "title": "Loss Mitigation Duty",
+    "text": "The policyholder is obligated to take reasonable steps to prevent further loss after an incident; failure to mitigate may reduce the settlement."
+  },
+  {
+    "doc_id": "general_38",
+    "claim_type": "general",
+    "title": "Appraisal Dispute Resolution",
+    "text": "If the insurer and policyholder disagree on loss value, either may demand an independent appraisal to resolve the dispute."
+  },
+  {
+    "doc_id": "general_39",
+    "claim_type": "general",
+    "title": "Concurrent Causation",
+    "text": "When a loss results from both a covered and an excluded cause, coverage applies only to the portion attributable to the covered cause."
+  },
+  {
+    "doc_id": "general_40",
+    "claim_type": "general",
+    "title": "Policy Transfer on Sale",
+    "text": "Coverage does not automatically transfer when insured property is sold; the new owner must obtain a separate policy."
+  },
+  {
+    "doc_id": "general_41",
+    "claim_type": "general",
+    "title": "Electronic Claim Submission",
+    "text": "Claims submitted electronically are considered filed on the timestamp of submission, subject to the same filing deadlines as paper claims."
+  }
+
 ]

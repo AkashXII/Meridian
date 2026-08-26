@@ -5,10 +5,10 @@
 {"id": 4, "type": "blind", "query": "got a cardiac arrest and im admitted to the hospital, wanted to claim $5000 for it", "relevant_doc_ids": ["health_25"]},
   {"id": 5, "type": "blind", "query": "my psychiatrist is charging me $1000 for my mental health treatment, wanted to claim it, since last 10 days", "relevant_doc_ids": ["health_10"]},
   {"id": 6, "type": "blind", "query": "my car hit a tree and i broke my glass, wanted to claim $30000 for it", "relevant_doc_ids": ["auto_1", "auto_6"]},
-  {"id": 7, "type": "blind", "query": "i broke my ankle, want $50000 for it", "relevant_doc_ids": ["health_4"]},
+  {"id": 7, "type": "blind", "query": "i broke my ankle, want $50000 for it", "relevant_doc_ids": ["health_37"]},
   {"id": 8, "type": "blind", "query": "my wife and i just had a child and its been 60 days, i just realised, wanted to claim $1000 for it please", "relevant_doc_ids": ["health_13"]},
   {"id": 9, "type": "blind", "query": "i have a root canal for my tooth, my dentist is asking for $1500, wanted to claim this", "relevant_doc_ids": ["health_19"]},
   {"id": 10, "type": "blind", "query": "my laptop screen broke, wanted to claim $2000 for it please", "relevant_doc_ids": ["home_7"]},
-  {"id": 11, "type": "blind", "query": "hit a dog accidentally and broke my bumper of the car, claiming $2500 please", "relevant_doc_ids": ["auto_1"]},
+  {"id": 11, "type": "blind", "query": "hit a dog accidentally and broke my bumper of the car, claiming $2500 please", "relevant_doc_ids": ["auto_16"]},
   {"id": 12, "type": "blind", "query": "my cat scratched me and caused infection, claiming $500 for it please", "relevant_doc_ids": ["health_4"]}
 ]
