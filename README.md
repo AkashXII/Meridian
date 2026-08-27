@@ -55,15 +55,6 @@ The blind/labeled gap is the real finding, check out `RESULTS.md` for the five t
 
 ---
 
-## Scoping decisions
-- No MCP — pipeline doesn't call external tools at decision time
-- No Prometheus — Jaeger + the MySQL audit trail already cover observability needs
-- Deterministic rules (`fraud_rules.py`, `general_rules.py`) kept out of retrieval — closed-form comparisons, not search
-- No life-insurance claim type — a structurally different product, out of scope
-- Clause-boundary chunking, not fixed-size — insurance clauses are self-contained units; fixed windows risk cutting one mid-rule
-
----
-
 ## Running it locally
 
 **Startup order matters** — later services depend on earlier ones being up.
