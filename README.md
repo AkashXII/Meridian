@@ -1,186 +1,141 @@
-# Meridian
+# Meridian — Multi-Agent Insurance Claims Platform
 
-**A multi-agent insurance claims platform** — LangGraph orchestration, hybrid RAG retrieval, deterministic guardrails, distributed tracing, JWT-authenticated API and rate limiter.
+A multi-agent insurance claims pipeline built with **LangGraph**, combining hybrid retrieval, deterministic fraud and processing rules, PII redaction, and a human-in-the-loop review queue — with distributed tracing and a from-scratch retrieval evaluation across every stage.
 
-Meredian ingests a raw claim, redacts PII, extracts structured fields, retrieves the relevant policy clauses, runs a coverage decision and a fraud check in parallel, and returns a final, auditable decision — all traceable end to end.
+[**Watch the walkthrough →**](https://youtu.be/D1JkSALuKb4?si=8HHUmv470CBxqxwy)
 
-<!-- DEMO VIDEO -->
-## Demo
-
-[**Watch the walkthrough, click here!**](https://youtu.be/rTK51WJ_USU?si=78soOjZFDW5LhjMd)
-
-
----
-
-## Architecture
-
-<!-- ARCHITECTURE DIAGRAM -->
 ![Architecture diagram](assests/meridis.png)
 
-```
+---
 
-```
-
-- **`pii_redact`** strips PII (Presidio) before any LLM ever sees the claim text.
-- **`intake`** extracts structured fields (Groq / Llama 3.3 70B, forced into a Pydantic schema).
-- **`coverage_check`** and **`fraud_check`** run **in parallel** — independent questions ("is this covered" vs. "is this claim trustworthy"), no reason to serialize them.
-- **`fraud_check` is pure Python, not an LLM call.** It started as an LLM+RAG check and was rebuilt as deterministic rule logic after repeated false positives/negatives revealed the underlying signal (a policy-number prefix rule) was a closed-form fact, not a judgment call — full story in `DECISIONS.md` §Phase 3.
-- **`final_decision`** merges both results and overrides a decision to `needs_review` only if fraud was flagged *and* the claim was otherwise approved — a denial is already the conservative outcome and isn't re-routed.
+A policyholder describes a claim in plain language. The system extracts structured details, retrieves relevant policy clauses, checks fraud/processing rules deterministically, reaches a coverage decision, and escalates to a human reviewer when needed. Every step is traced; every claim is audited; retrieval and faithfulness are both evaluated, not assumed.
 
 ---
 
-## Features
+## Key features
 
-- **LangGraph orchestration** — sequential + parallel (fan-out/fan-in) agent workflow with conditional routing
-- **Hybrid retrieval** — vector search (Chroma) + BM25 keyword search + cross-encoder reranking, benchmarked against each method in isolation
-- **PII redaction** — Presidio, with a domain-specific false-positive guard so policy numbers never get mistaken for names
-- **Deterministic fraud rules** — no LLM in the loop for facts that don't require judgment
-- **Distributed tracing** — OpenTelemetry + Jaeger, including manual cross-thread context propagation for the parallel branch
-- **Full audit trail** — every claim decision persisted to MySQL: inputs, retrieved context, decisions, latency, and per-claim token cost
-- **JWT authentication** — bcrypt password hashing, per-user claim scoping, rate-limited login
-- **React frontend** — login, claim submission, decision view, and claim history
+- **LangGraph pipeline:** (check the architecture image)
+- **Hybrid retrieval** (vector + BM25 + cross-encoder rerank) over a chunked policy corpus, with clause-boundary chunking and a recursive-splitter fallback
+- **Deterministic rules kept out of the LLM entirely:** `fraud_rules.py` (prefix, filing deadline, amount sanity) and `general_rules.py` (documentation/assessment thresholds) — both plain comparisons, no model involved
+- **Human-in-the-loop review queue:** fraud-flagged approvals escalate to `needs_review`, never silently auto-decided. The AI's original assessment and the reviewer's final call are stored separately, so neither overwrites the other
+- **LLM-as-judge faithfulness checks** using a different model than the one that generates decisions, verified against two hand-planted hallucinations before being trusted
+- **Full audit trail** in MySQL, distributed tracing via OpenTelemetry + Jaeger
 
----
-
-## Screenshots
-
-<!-- JAEGER TRACE -->
-### Distributed trace (Jaeger)
 ![Jaeger trace showing parallel coverage_check and fraud_check spans](assests/jaegar1.png)
 ![Jaeger trace showing parallel coverage_check and fraud_check spans](assests/jaegar2.png)
 
-*This trace is what led to diagnosing a 9.46s bottleneck inside retrieval — traced to Hugging Face's per-load model-update check firing on every process start — fixed with `HF_HUB_OFFLINE=1`, cutting total latency from 10.9s to 1.56s.*
-
-<!-- Optional: add app screenshots here too -->
-<!-- ![Claim submission screen](PASTE_IMAGE_PATH) -->
-<!-- ![Claim history screen](PASTE_IMAGE_PATH) -->
-
 ---
 
-## Results
+## Tech stack
 
-| Metric | Result |
+| Layer | Choice |
 |---|---|
-| Retrieval recall@3 (hybrid + rerank) | **1.000** across a 25-query labeled eval set |
-| Retrieval MRR | 0.980 |
-| Per-claim latency | **10.9s → 1.56s** (~85% reduction) after diagnosing an unnecessary network call via tracing |
-| Per-claim cost | ~$0.00058 (Llama 3.3 70B via Groq) |
-| Fraud rule tests | 13/13 passing, including the exact multi-violation case hit in production |
-| Auth | Verified user-scoped claim isolation across separate accounts; rate limiting confirmed to trigger under brute-force |
-
-Full methodology and limitations for the retrieval evaluation: [`eval/RESULTS.md`](./eval/RESULTS.md).
+| Orchestration | LangGraph |
+| LLM | Groq (`openai/gpt-oss-120b`) |
+| Retrieval | ChromaDB (vector) + BM25 (keyword) + cross-encoder rerank (`BAAI/bge-reranker-base`) |
+| Backend | FastAPI, JWT auth, rate limiting |
+| Database | MySQL (audit trail, users, review status) |
+| Frontend | React |
+| Observability | OpenTelemetry + Jaeger |
+| PII detection | NER + regex-based redaction, pre-LLM |
 
 ---
 
-## Tech Stack
+## Retrieval & faithfulness evaluation
 
-| Layer | Tools |
+Full methodology and failure-mode analysis in [`RESULTS.md`](./RESULTS.md). Headline numbers:
+
+| | Score |
 |---|---|
-| Orchestration | LangGraph, LangChain |
-| LLM | Groq (Llama 3.3 70B Versatile) |
-| Retrieval | ChromaDB, rank_bm25, sentence-transformers (cross-encoder) |
-| Guardrails | Microsoft Presidio |
-| Observability | OpenTelemetry, Jaeger |
-| Backend | FastAPI, PyJWT, bcrypt, slowapi |
-| Database | MySQL (PyMySQL) |
-| Testing | pytest |
-| Frontend | React (Vite) |
+| Retrieval — labeled set | 0.96 recall@3 |
+| Retrieval — blind set (queries written without seeing the corpus) | 0.65 recall@3 / 0.76 recall@5 |
+| Faithfulness (LLM-as-judge, different model than the generator) | 17/17 grounded |
+
+The blind/labeled gap is the real finding, check out `RESULTS.md` for the five tested hypotheses and the two failure modes that actually explained it.
 
 ---
 
-## Getting Started
+## Scoping decisions
+- No MCP — pipeline doesn't call external tools at decision time
+- No Prometheus — Jaeger + the MySQL audit trail already cover observability needs
+- Deterministic rules (`fraud_rules.py`, `general_rules.py`) kept out of retrieval — closed-form comparisons, not search
+- No life-insurance claim type — a structurally different product, out of scope
+- Clause-boundary chunking, not fixed-size — insurance clauses are self-contained units; fixed windows risk cutting one mid-rule
 
-### Prerequisites
-- Python 3.12+
-- Node.js (for the frontend)
-- MySQL running locally
-- Docker (for Jaeger)
-- A [Groq API key](https://console.groq.com)
+---
 
-### Backend
+## Running it locally
+
+**Startup order matters** — later services depend on earlier ones being up.
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env   # fill in GROQ_API_KEY, DB_*, JWT_SECRET
+# 1. MySQL
+sudo systemctl start mysql
 
-mysql -u your_user -p < db/schema.sql
-mysql -u your_user -p < db/auth_schema.sql
+# 2. Jaeger (traces are in-memory and reset on restart)
+docker start jaeger
+# if it doesn't exist yet:
+docker run -d --name jaeger -p 16686:16686 -p 4317:4317 -p 4318:4318 jaegertracing/all-in-one:latest
 
-docker run -d --name jaeger \
-  -p 16686:16686 -p 4317:4317 -p 4318:4318 \
-  jaegertracing/all-in-one:latest
-
+# 3. Backend
+source .venv/bin/activate
 uvicorn app.api:app --reload
-```
+# → http://localhost:8000/docs
 
-API docs available at `http://localhost:8000/docs`. Jaeger UI at `http://localhost:16686`.
-
-### CLI (no server needed)
-
-```bash
-python -m app.main "Basement flooded during heavy rain on 2026-05-02, policy H-77102, requesting $8,000 for damage."
-```
-
-### Frontend
-
-```bash
+# 4. Frontend
 cd frontend
-npm install
 npm run dev
 ```
 
-### Tests
-
-```bash
-pip install pytest
-python -m pytest tests/ -v
+**Environment variables** (`.env`):
+```
+GROQ_API_KEY=your_key_here
+GROQ_MODEL=openai/gpt-oss-120b
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=...
+DB_PASSWORD=...
+DB_NAME=claims_platform
+JWT_SECRET=...
+HF_HUB_OFFLINE=1
 ```
 
-### Retrieval evaluation
+First run needs `HF_HUB_OFFLINE=0` once, to download the embedding and reranker models — after that, `1` keeps startup fast and fully offline.
 
-```bash
-python -m eval.run_eval
+---
+
+## Project structure
+
+```
+app/
+  nodes.py              
+  graph.py              
+  chunker.py            
+  fraud_rules.py        
+  general_rules.py      
+  pii.py                 
+  audit_store.py          
+  api.py / auth.py        
+  retrieval/
+    vector_store.py
+    keyword_store.py
+    hybrid_retriever.py
+data/
+  auto_policy.txt, home_policy.txt, health_policy.txt, general_terms.txt
+eval/
+  run_eval.py              
+  run_blind_chunked.py       
+  faithfulness_eval.py         
+frontend/
+  src/  # Login, SubmitClaim, ClaimResult, ClaimHistory, ReviewQueue
 ```
 
 ---
 
-## Project Structure
+## Known limitations
 
-```
-meredian/
-├── app/
-│   ├── state.py            # Shared graph state schema
-│   ├── models.py            # Pydantic schemas (ExtractedClaim, CoverageDecision, FraudCheck)
-│   ├── llm.py                # Groq client wrapper
-│   ├── pii.py                 # PII redaction
-│   ├── fraud_rules.py         # Deterministic fraud checks
-│   ├── token_usage.py         # Token/cost tracking
-│   ├── tracing.py             # OpenTelemetry setup
-│   ├── nodes.py               # LangGraph node functions
-│   ├── graph.py                # Graph construction
-│   ├── main.py                  # CLI entry point
-│   ├── audit_store.py           # MySQL audit persistence
-│   ├── auth.py                   # JWT + password hashing
-│   ├── api.py                     # FastAPI app
-│   └── retrieval/                  # Vector store, keyword store, hybrid search
-├── data/                             # Policy document corpus, sample claims
-├── db/                                # SQL schema files
-├── eval/                               # Retrieval evaluation harness + results
-├── tests/                               # Unit tests
-├── frontend/                             # React app
-├── DECISIONS.md                           # Why, not just what — the engineering log
-└── README.md
-```
+- Retrieval underperforms on short, colloquial queries with no clause-specific vocabulary — a structural property of dense retrieval, diagnosed in `RESULTS.md`, not a bug to fix
+- No policyholder/declarations-page database — the corpus models policy *terms*, not individual customer records
+- Jaeger traces are in-memory and don't survive a restart
+- No Docker Compose yet — scoped, not yet built
 
----
-
-## Notes
-
-A few of the more interesting problems solved along the way :
-
-- **A race condition** in the retrieval layer, surfaced only once nodes started running in parallel — fixed by building shared resources once at import time instead of lazily.
-- **A fraud-detection redesign** — an LLM-based check was replaced with deterministic code after repeated prompt-tuning failed to fix both a false positive and a false negative, revealing the underlying question was never actually a judgment call.
-- **An 85% latency reduction**, diagnosed (not guessed) via distributed tracing down to a single unnecessary network round-trip.
-- **A live PII false positive**, caught through the actual UI, root-caused, and fixed with a targeted regex guard rather than a blunt confidence-threshold change.
-
----
