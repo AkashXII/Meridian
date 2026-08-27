@@ -4,7 +4,7 @@ A multi-agent insurance claims pipeline built with **LangGraph**, combining hybr
 
 [**Watch the walkthrough →**](https://youtu.be/D1JkSALuKb4?si=8HHUmv470CBxqxwy)
 
-![Architecture diagram](assests/meridis.png)
+![Architecture diagram](assests/meridianarchi.png)
 
 ---
 
