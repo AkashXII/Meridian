@@ -1,6 +1,6 @@
-# Meridian — Multi-Agent Insurance Claims Platform
+# Meridian~Multi-Agent Insurance Claims Platform
 
-A multi-agent insurance claims pipeline built with **LangGraph**, combining hybrid retrieval, deterministic fraud and processing rules, PII redaction, and a human-in-the-loop review queue — with distributed tracing and a from-scratch retrieval evaluation across every stage.
+A multi-agent insurance claims pipeline built with **LangGraph**, combining hybrid retrieval, deterministic fraud and processing rules, PII redaction, and a human-in-the-loop review queue with distributed tracing and a from-scratch retrieval evaluation across every stage.
 
 [**Watch the walkthrough →**](https://youtu.be/D1JkSALuKb4?si=8HHUmv470CBxqxwy)
 
