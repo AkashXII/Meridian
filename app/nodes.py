@@ -1,4 +1,4 @@
-
+from app.chunker import ingest_policy_documents
 import json
 from pathlib import Path
 import os
@@ -17,7 +17,8 @@ from app.tracing import tracer
 
 REQUIRED_FIELDS = ["policy_number", "claim_type", "incident_date"]
 
-_docs = json.loads((Path(__file__).parent.parent / "data" / "policy_docs.json").read_text())
+
+_docs = ingest_policy_documents(str(Path(__file__).parent.parent / "data"))
 _vector_store = build_vector_store(_docs)
 _keyword_store = build_keyword_store(_docs)
 
@@ -36,12 +37,37 @@ def intake_node(state: ClaimState) -> dict:
     parent_ctx = propagate.extract(state["trace_carrier"])
     with tracer.start_as_current_span("intake", context=parent_ctx) as span:
         llm = get_llm()
-        structured_llm = llm.with_structured_output(ExtractedClaim, include_raw=True)
+        structured_llm = llm.with_structured_output(
+            ExtractedClaim, method="json_mode", include_raw=True
+        )
         result = structured_llm.invoke(
-            "Extract structured claim details from this claim description:\n\n"
+            "Extract structured claim details from this claim description. "
+            "Respond with ONLY a JSON object with these exact keys: "
+            '{"policy_number": string or null, "claim_type": string, '
+            '"incident_date": string (YYYY-MM-DD) or null, "description": string, '
+            '"amount_requested": number or null}.\n\n'
+            "IMPORTANT: claim_type MUST be exactly one of these four words, "
+            "nothing else, no matter what the claim describes: auto, home, health, other. "
+            "Flood, fire, theft, storm, water damage, and any property damage -> home. "
+            "Injury, illness, hospital, doctor, medication -> health. "
+            "Vehicle, car, accident, collision -> auto. "
+            "Anything else -> other. "
+            "Do NOT invent a more specific word like 'flood' or 'collision' - "
+            "always use one of the four exact words above.\n\n"
+            "No other text before or after the JSON.\n\n"
             f"{state['redacted_claim_text']}"
         )
         extracted: ExtractedClaim = result["parsed"]
+
+        if extracted is None:
+            span.set_attribute("intake.extraction_failed", True)
+            return {
+                "extracted": None,
+                "missing_fields": REQUIRED_FIELDS,
+                "input_tokens": state["input_tokens"],
+                "output_tokens": state["output_tokens"],
+            }
+
         usage = extract_usage(result["raw"])
 
         missing = [f for f in REQUIRED_FIELDS if not getattr(extracted, f)]
@@ -78,8 +104,13 @@ def coverage_check_node(state: ClaimState) -> dict:
 
         with tracer.start_as_current_span("llm_call"):
             llm = get_llm()
-            structured_llm = llm.with_structured_output(CoverageDecision, include_raw=True)
+            structured_llm = llm.with_structured_output(
+                CoverageDecision, method="json_mode", include_raw=True
+            )
             result = structured_llm.invoke(
+                "Respond with ONLY a JSON object with these exact keys: "
+                '{"decision": "approved" or "denied" or "needs_review", '
+                '"reasoning": string}. No other text before or after the JSON.\n\n'
                 f"Relevant policy clauses:\n{policy_context}\n\n"
                 f"Claim details:\n{extracted.model_dump_json(indent=2)}\n\n"
                 "Decide whether this claim should be approved, denied, or needs_review, "
@@ -108,6 +139,7 @@ def coverage_check_node(state: ClaimState) -> dict:
         "output_tokens": total_output,
         "estimated_cost_usd": cost,
     }
+
 
 def fraud_check_node(state: ClaimState) -> dict:
     parent_ctx = propagate.extract(state["trace_carrier"])
@@ -149,8 +181,9 @@ def final_decision_node(state: ClaimState) -> dict:
             span.set_attribute("final_decision.requirements", len(requirements))
 
     return {"final_decision": final}
+
+
 def route_after_intake(state: ClaimState):
     if state["missing_fields"]:
         return "clarification_needed"
     return ["coverage_check", "fraud_check"]
-

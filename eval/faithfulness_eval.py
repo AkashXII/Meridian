@@ -1,20 +1,13 @@
-
 import json
 import os
+import time
 from pathlib import Path
-
 import pymysql
 from dotenv import load_dotenv
-
 from app.llm import get_judge_llm
 from app.models import FaithfulnessCheck
-
 load_dotenv()
-
-DOCS_PATH = Path(__file__).parent.parent / "data" / "policy_docs.json"
-SAMPLE_SIZE = 10
-
-
+SAMPLE_SIZE = 20
 def _connect():
     return pymysql.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
@@ -27,7 +20,8 @@ def _connect():
 
 
 def load_doc_texts() -> dict:
-    docs = json.loads(DOCS_PATH.read_text())
+    from app.chunker import ingest_policy_documents
+    docs = ingest_policy_documents(str(Path(__file__).parent.parent / "data"))
     return {d["doc_id"]: d for d in docs}
 
 
@@ -50,7 +44,6 @@ def fetch_real_cases(limit=SAMPLE_SIZE):
             return cur.fetchall()
     finally:
         conn.close()
-
 TRAP_CASE = {
     "id": "TRAP",
     "policy_number": "A-11111",
@@ -65,14 +58,28 @@ TRAP_CASE = {
     "expect_grounded": False,
 }
 
-
+TRAP_CASE_2 = {
+    "id": "TRAP2",
+    "policy_number": "A-22222",
+    "claim_type": "auto",
+    "doc_ids": ["auto_2"],
+    "reasoning": (
+        "The claim is denied because the vehicle was being driven more than "
+        "50 miles from the policyholder's registered address at the time of "
+        "the incident, which voids comprehensive coverage under the "
+        "geographic use restriction."
+    ),
+    "expect_grounded": False,
+}
 def build_context(doc_ids, doc_lookup):
     lines = []
+    resolved = 0
     for doc_id in doc_ids:
         doc = doc_lookup.get(doc_id)
         if doc:
             lines.append(f"- {doc['title']}: {doc['text']}")
-    return "\n".join(lines)
+            resolved += 1
+    return "\n".join(lines), resolved
 
 
 def judge(context: str, reasoning: str) -> FaithfulnessCheck:
@@ -107,6 +114,18 @@ def judge(context: str, reasoning: str) -> FaithfulnessCheck:
     )
 
 
+def judge_with_retry(context: str, reasoning: str, max_retries: int = 3) -> FaithfulnessCheck:
+    for attempt in range(max_retries):
+        try:
+            return judge(context, reasoning)
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            wait = 2 * (attempt + 1)
+            print(f"     (judge call failed: {type(e).__name__}, retrying in {wait}s...)")
+            time.sleep(wait)
+
+
 def main():
     doc_lookup = load_doc_texts()
     real_cases = fetch_real_cases()
@@ -126,12 +145,22 @@ def main():
 
         retrieved = json.loads(row["retrieved_docs"])
         doc_ids = [d["doc_id"] for d in retrieved]
-        context = build_context(doc_ids, doc_lookup)
+        context, resolved = build_context(doc_ids, doc_lookup)
+
+        if resolved < len(doc_ids):
+            print(f"[SKIP] claim {row['id']}: {len(doc_ids) - resolved}/{len(doc_ids)} "
+                  f"doc_id(s) not in current corpus (stale row, pre-corpus-switch)")
+            continue
         if not context:
             print(f"[SKIP] claim {row['id']}: no matching docs in current corpus")
             continue
 
-        verdict = judge(context, row["coverage_reasoning"])
+        try:
+            verdict = judge_with_retry(context, row["coverage_reasoning"])
+        except Exception as e:
+            print(f"[SKIP] claim {row['id']}: judge call failed after retries ({type(e).__name__})")
+            continue
+
         results.append(verdict.grounded)
 
         status = "GROUNDED" if verdict.grounded else "UNSUPPORTED"
@@ -139,17 +168,24 @@ def main():
         if not verdict.grounded:
             for c in verdict.unsupported_claims:
                 print(f"     ! {c}")
-    trap_context = build_context(TRAP_CASE["doc_ids"], doc_lookup)
-    trap_verdict = judge(trap_context, TRAP_CASE["reasoning"])
-    trap_caught = trap_verdict.grounded == TRAP_CASE["expect_grounded"]
-    print(f"\n[TRAP] judge {'CORRECTLY caught' if trap_caught else 'FAILED to catch'} the planted hallucination")
-    if trap_verdict.unsupported_claims:
-        for c in trap_verdict.unsupported_claims:
-            print(f"     ! {c}")
+
+    trap_context, trap_resolved = build_context(TRAP_CASE["doc_ids"], doc_lookup)
+    try:
+        trap_verdict = judge_with_retry(trap_context, TRAP_CASE["reasoning"])
+        trap_caught = trap_verdict.grounded == TRAP_CASE["expect_grounded"]
+        print(f"\n[TRAP] judge {'CORRECTLY caught' if trap_caught else 'FAILED to catch'} the planted hallucination")
+        if trap_verdict.unsupported_claims:
+            for c in trap_verdict.unsupported_claims:
+                print(f"     ! {c}")
+    except Exception as e:
+        trap_caught = False
+        print(f"\n[TRAP] judge call failed after retries ({type(e).__name__}) - could not verify trap detection")
 
     if results:
         rate = sum(results) / len(results)
         print(f"\nFaithfulness rate on real claims: {rate:.1%} ({sum(results)}/{len(results)})")
+    else:
+        print("\nNo claims were successfully judged - all were skipped or failed.")
     print(f"Trap case detection: {'PASS' if trap_caught else 'FAIL'}")
 
 

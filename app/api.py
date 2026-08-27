@@ -123,17 +123,23 @@ def submit_claim(request: Request, body: ClaimRequest, user: dict = Depends(get_
     coverage = result.get("coverage_decision")
     final = result.get("final_decision")
     fraud = result.get("fraud_check")
+    extracted = result.get("extracted")
     return {
-        "extracted": result["extracted"].model_dump() if result["extracted"] else None,
+        "extracted": extracted.model_dump() if extracted else None,
         "missing_fields": result["missing_fields"],
-        "decision": coverage.decision if final else None,
-        "reasoning": coverage.reasoning if final else None,
+        "policy_number": extracted.policy_number if extracted else None,
+        "incident_date": extracted.incident_date if extracted else None,
+        "claim_type": extracted.claim_type if extracted else None,
+        "amount_requested": extracted.amount_requested if extracted else None,
+        "decision": final.decision if final else None,
+        "reasoning": final.reasoning if final else None,
+        "coverage_decision": coverage.decision if coverage else None,
+        "coverage_reasoning": coverage.reasoning if coverage else None,
         "fraud_flagged": fraud.flagged if fraud else None,
         "fraud_reason": fraud.reason if fraud else None,
         "latency_ms": latency_ms,
         "estimated_cost_usd": float(result["estimated_cost_usd"]),
     }
-
 
 @app.get("/claims")
 def my_claims(user: dict = Depends(get_current_user)):

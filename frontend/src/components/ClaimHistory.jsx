@@ -38,9 +38,9 @@ export default function ClaimHistory({
   };
 
   const badgeStyle = (decision) => {
-    if (decision === 'approved') return { bg: '#DEF7EC', text: '#03543F', label: 'Approved' };
-    if (decision === 'denied') return { bg: '#FDE8E8', text: '#9B1C1C', label: 'Denied' };
-    return { bg: '#FDF6B2', text: '#723B13', label: 'Needs Review' };
+    if (decision === 'approved') return { bg: '#035531', text: '#ffffff', label: 'Approved' };
+    if (decision === 'denied') return { bg: '#610000', text: '#ffffff', label: 'Denied' };
+    return { bg: '#7a6e00', text: '#ffffff', label: 'Needs Review' };
   };
 
   const filteredClaims = claims.filter((c) =>
@@ -144,7 +144,7 @@ export default function ClaimHistory({
 
         {!loading && filteredClaims.length === 0 && (
           <p className="text-on-surface-variant">
-            No claims yet — submit one to see it here.
+            No claims yet. submit one to see it here.
           </p>
         )}
 

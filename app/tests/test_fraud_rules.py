@@ -6,7 +6,6 @@ from app.models import ExtractedClaim
 
 
 def make_claim(**overrides):
-    """A minimal valid, non-flagged claim — override only what a test needs."""
     defaults = dict(
         policy_number="A-12345",
         claim_type="auto",
@@ -80,9 +79,6 @@ def test_positive_amount_is_clean():
 
 
 def test_multiple_violations_all_reported():
-    """Regression test for the exact bug we hit live: an H-prefixed policy
-    on a non-health claim, filed late, with a zero amount — should catch
-    all three, not stop at the first one found."""
     claim = make_claim(
         policy_number="H-1",
         claim_type="auto",

@@ -1,7 +1,4 @@
-"""
-Keyword search over the same documents using BM25 — catches exact terms
-(e.g. "flood", "H-") that embedding similarity can blur past.
-"""
+
 from rank_bm25 import BM25Okapi
 
 

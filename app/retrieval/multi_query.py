@@ -1,24 +1,4 @@
-"""
-Multi-query retrieval.
-
-Bottleneck diagnosed via blind eval: colloquial claim descriptions ("my cat
-scratched me and it got infected") sit in a different register than formal
-policy clauses ("Emergency room visits are covered at 80%"), so a single query
-embedding often lands nowhere near the correct-but-present document.
-
-Multi-query attacks this on the QUERY side: an LLM rewrites the description into
-several differently-framed queries, we retrieve for each, then merge. The bet is
-that at least one framing lands near the right clause even when the raw phrasing
-doesn't. Unlike single-query expansion, a bad rewrite just contributes nothing -
-it can't drag one combined query off course, because each variant retrieves
-independently.
-
-Cost: one LLM call + N retrievals per claim instead of 1 retrieval. A real
-latency/token tradeoff, acceptable here for accuracy.
-"""
 from typing import List
-
-
 VARIANT_PROMPT = (
     "Rewrite this insurance claim description into 3 different search queries "
     "that would help find the relevant policy clause. Vary the framing:\n"
@@ -48,18 +28,11 @@ def generate_query_variants(description: str, llm=None) -> List[str]:
             if line and line not in variants:
                 variants.append(line)
     except Exception:
-        pass  # fall back to just the original
+        pass  
     return variants
 
 
 def multi_query_search(vector_store, keyword_store, description, hybrid_search_fn, top_k=3, llm=None):
-    """
-    Runs hybrid_search for each query variant, merges results keeping the best
-    (highest) score seen for each doc, returns top_k overall.
-
-    hybrid_search_fn is passed in rather than imported, to avoid a circular
-    import and to keep this testable with a stub.
-    """
     variants = generate_query_variants(description, llm=llm)
 
     best_by_doc = {}

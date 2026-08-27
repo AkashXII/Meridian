@@ -1,6 +1,6 @@
 [
   {"id": 1, "type": "blind_v2", "query": "my grandfather was rushed to a hospital via an ambulance which costed us $500, i wanna claim it", "relevant_doc_ids": ["health_5"]},
-  {"id": 2, "type": "blind_v2", "query": "my hospital medicines costed me $800 dollars, wanna claim it", "relevant_doc_ids": ["health_6"]},
+  {"id": 2, "type": "blind_v2", "query": "my hospital medicines costed me $1200 dollars, wanna claim it", "relevant_doc_ids": ["health_6"]},
   {"id": 3, "type": "blind_v2", "query": "a tree fell on our roof and now it costs $6000 dollars for repair, i want to claim insurance please", "relevant_doc_ids": ["home_18"]},
   {"id": 4, "type": "blind_v2", "query": "a criminal burnt my shed, i wanna claim insurance of $3000 for the repairs please", "relevant_doc_ids": ["home_26"]},
   {"id": 5, "type": "blind_v2", "query": "my underaged son got into an accident,no license, need $450 for car repairs", "relevant_doc_ids": ["auto_17"]},
@@ -11,7 +11,7 @@
   {"id": 10, "type": "blind_v2", "query": "due to the recent rain which caused the landslide, my house was damaged, need $10000 for the repairs", "relevant_doc_ids": ["home_11"]},
   {"id": 11, "type": "blind_v2", "query": "i broke my ankle, want $50000 for it", "relevant_doc_ids": ["health_37"]},
   {"id": 12, "type": "blind_v2", "query": "hit a dog accidentally and broke my bumper of the car, claiming $2500 please", "relevant_doc_ids": ["auto_16"]},
-  {"id": 13, "type": "blind_v2", "query": "my wife and i just had a child and its been 60 days, i just realised, wanted to claim $1000 for it please", "relevant_doc_ids": ["health_13"]},
+  {"id": 13, "type": "blind_v2", "query": "my wife and i just had a child , i just realised, wanted to claim $1000 for it please", "relevant_doc_ids": ["health_13"]},
   {"id": 14, "type": "blind_v2", "query": "my cat scratched me and caused infection, claiming $500 for it please", "relevant_doc_ids": ["health_37"]},
   {"id": 15, "type": "blind_v2", "query": "my psychiatrist is charging me $1000 for my mental health treatment, wanted to claim it, since last 10 days", "relevant_doc_ids": ["health_10"]},
   {"id": 16, "type": "blind_v2", "query": "my laptop screen broke, wanted to claim $2000 for it please", "relevant_doc_ids": ["home_7"]},

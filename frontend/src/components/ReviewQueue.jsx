@@ -53,7 +53,7 @@ export default function ReviewQueue({ authToken, setAuthToken, userRole, current
       <header className="bg-surface-container-lowest border-b border-outline-variant w-full">
         <div className="relative flex items-center w-full px-margin-desktop py-4">
           <div className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer" onClick={() => setCurrentScreen('submit')}>
-            ClaimsPortal
+            Meridian
           </div>
           <nav className="hidden md:flex gap-6 items-center absolute left-1/2 -translate-x-1/2">
             <button type="button" onClick={() => setCurrentScreen('submit')} className="font-body-md text-body-md pb-1 cursor-pointer text-on-surface-variant hover:text-primary transition-colors duration-150">
@@ -158,7 +158,7 @@ export default function ReviewQueue({ authToken, setAuthToken, userRole, current
                 disabled={submitting}
                 onClick={() => resolve('approved')}
                 className="px-6 py-2 font-label-md text-label-md cursor-pointer disabled:opacity-50"
-                style={{ background: '#DEF7EC', color: '#03543F' }}
+                style={{ background: '#004728', color: '#ffffff' }}
               >
                 Approve
               </button>
@@ -167,7 +167,7 @@ export default function ReviewQueue({ authToken, setAuthToken, userRole, current
                 disabled={submitting}
                 onClick={() => resolve('denied')}
                 className="px-6 py-2 font-label-md text-label-md cursor-pointer disabled:opacity-50"
-                style={{ background: '#FDE8E8', color: '#9B1C1C' }}
+                style={{ background: '#500202', color: '#ffffff' }}
               >
                 Deny
               </button>

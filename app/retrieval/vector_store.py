@@ -1,11 +1,4 @@
-"""
-Vector search over the policy documents using embedding similarity.
-Chroma's default embedding function runs a local MiniLM model — no API key,
-no extra cost, works fully offline once the model is cached.
-"""
 import chromadb
-
-
 def build_vector_store(docs: list[dict]):
     client = chromadb.Client()
     collection = client.create_collection(name="policy_docs")

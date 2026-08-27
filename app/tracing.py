@@ -13,10 +13,6 @@ provider.add_span_processor(
 trace.set_tracer_provider(provider)
 
 tracer = trace.get_tracer("claims_pipeline")
-
-
 def shutdown_tracing():
-    """Flush any buffered spans before the process exits — a short-lived
-    CLI can otherwise finish before the background export timer fires."""
     provider.force_flush()
     provider.shutdown()

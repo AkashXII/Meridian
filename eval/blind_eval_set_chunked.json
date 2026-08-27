@@ -1,0 +1,19 @@
+[
+  {"id": 1, "query": "my grandfather was rushed to a hospital via an ambulance which costed us $500, i wanna claim it", "relevant_doc_ids": ["health_6"]},
+  {"id": 2, "query": "my hospital medicines costed me $1200 dollars, wanna claim it", "relevant_doc_ids": ["health_7"]},
+  {"id": 3, "query": "a tree fell on our house roof and now it costs $6000 dollars for repair, i want to claim insurance please", "relevant_doc_ids": ["home_1"]},
+  {"id": 4, "query": "my underaged son got into an accident, no license, need $450 for car repairs", "relevant_doc_ids": ["auto_11"]},
+  {"id": 5, "query": "a protest caused my car to be damaged, i wanna claim $500 for it", "relevant_doc_ids": ["auto_12"]},
+  {"id": 6, "query": "i fractured my arm during my sports event, wanna claim $50000 for it", "relevant_doc_ids": ["health_3"]},
+  {"id": 7, "query": "my house needs a cleaning cause of the mold everywhere, i want to claim $6500 for it please", "relevant_doc_ids": ["home_12"]},
+  {"id": 8, "query": "i need to change my damaged windshield of the car, need $750 for it please", "relevant_doc_ids": ["auto_8"]},
+  {"id": 9, "query": "due to the recent rain which caused the landslide, my house was damaged, need $10000 for the repairs", "relevant_doc_ids": ["home_9"]},
+  {"id": 10, "query": "i broke my ankle, want $50000 for it", "relevant_doc_ids": ["health_3"]},
+  {"id": 11, "query": "hit a dog accidentally and broke my bumper of the car, claiming $2500 please", "relevant_doc_ids": ["auto_1"]},
+  {"id": 12, "query": "my wife and i just had a child, I just realised that I wanna claim $1000 for it please", "relevant_doc_ids": ["health_9"]},
+  {"id": 13, "query": "my cat scratched me and caused infection, claiming $500 for it please", "relevant_doc_ids": ["health_3"]},
+  {"id": 14, "query": "my psychiatrist is charging me $1000 for my mental health treatment, wanted to claim it, since last 10 days", "relevant_doc_ids": ["health_8"]},
+  {"id": 15, "query": "my laptop screen broke, wanted to claim $2000 for it please", "relevant_doc_ids": ["home_4"]},
+  {"id": 16, "query": "my plastic surgery cost me $2000, wanted to claim my health insurance for it", "relevant_doc_ids": ["health_11"]},
+  {"id": 17, "query": "got a heart attack and im admitted to the hospital, wanted to claim $5000 for it", "relevant_doc_ids": ["health_5"]}
+]

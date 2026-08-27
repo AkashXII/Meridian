@@ -21,6 +21,9 @@ export default function ClaimResult({
     );
   }
 
+  const missingFields = claimResult.missing_fields ?? [];
+  const needsClarification = missingFields.length > 0;
+
   const policyNumber =
     claimResult.extracted?.policy_number ?? claimResult.policy_number;
   const claimType =
@@ -36,11 +39,13 @@ export default function ClaimResult({
   const fraudFlagged = claimResult.fraud_flagged;
   const fraudReason = claimResult.fraud_reason;
 
-  const badge = {
-    approved: { bg: '#DEF7EC', text: '#03543F', label: 'APPROVED' },
-    denied: { bg: '#FDE8E8', text: '#9B1C1C', label: 'DENIED' },
-    needs_review: { bg: '#FDF6B2', text: '#723B13', label: 'NEEDS REVIEW' },
-  }[decision] || { bg: '#E5E7EB', text: '#374151', label: 'UNKNOWN' };
+  const badge = needsClarification
+    ? { bg: '#E5E7EB', text: '#374151', label: 'MORE INFO NEEDED' }
+    : {
+        approved: { bg: '#ffffff', text: '#03543F', label: 'APPROVED' },
+        denied: { bg: '#640000', text: '#ffffff', label: 'DENIED' },
+        needs_review: { bg: '#7e7101', text: '#ffffff', label: 'NEEDS REVIEW' },
+      }[decision] || { bg: '#E5E7EB', text: '#374151', label: 'UNKNOWN' };
 
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen flex flex-col">
@@ -118,66 +123,87 @@ export default function ClaimResult({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-stack-md gap-x-gutter mb-stack-lg border border-outline-variant rounded-lg p-stack-lg bg-surface-container-lowest">
-            <div className="flex flex-col gap-unit">
-              <span className="font-label-md text-label-md text-on-surface-variant">
-                Policy Number
-              </span>
-              <span className="font-data-tabular text-data-tabular text-on-surface">
-                {policyNumber || '—'}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-unit">
-              <span className="font-label-md text-label-md text-on-surface-variant">
-                Claim Type
-              </span>
-              <span className="font-data-tabular text-data-tabular text-on-surface capitalize">
-                {claimType || '—'}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-unit">
-              <span className="font-label-md text-label-md text-on-surface-variant">
-                Incident Date
-              </span>
-              <span className="font-data-tabular text-data-tabular text-on-surface">
-                {incidentDate || '—'}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-unit">
-              <span className="font-label-md text-label-md text-on-surface-variant">
-                Amount
-              </span>
-              <span className="font-data-tabular text-data-tabular text-on-surface">
-                {amountRequested != null
-                  ? `$${Number(amountRequested).toFixed(2)}`
-                  : '—'}
-              </span>
-            </div>
-          </div>
-
-          <div className="mb-stack-lg">
-            <h2 className="font-headline-sm text-headline-sm text-primary mb-stack-sm">
-              Reasoning
-            </h2>
-
-            <div className="p-stack-md bg-surface border border-outline-variant rounded-DEFAULT">
-              <p className="font-body-md text-body-md text-on-surface">
-                {reasoning || 'No reasoning available.'}
+          {needsClarification ? (
+            <div className="mb-stack-lg border border-outline-variant rounded-lg p-stack-lg bg-surface-container-lowest">
+              <h2 className="font-headline-sm text-headline-sm text-primary mb-stack-sm">
+                More information needed
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant mb-stack-sm">
+                We couldn't process your claim because the following information was missing:
+              </p>
+              <ul className="list-disc list-inside font-body-md text-body-md text-on-surface">
+                {missingFields.map((field) => (
+                  <li key={field}>{field.replace(/_/g, ' ')}</li>
+                ))}
+              </ul>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-stack-md">
+                Please go back and resubmit your claim with these details included.
               </p>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-stack-md gap-x-gutter mb-stack-lg border border-outline-variant rounded-lg p-stack-lg bg-surface-container-lowest">
+                <div className="flex flex-col gap-unit">
+                  <span className="font-label-md text-label-md text-on-surface-variant">
+                    Policy Number
+                  </span>
+                  <span className="font-data-tabular text-data-tabular text-on-surface">
+                    {policyNumber || '—'}
+                  </span>
+                </div>
 
-          <div className="pt-stack-md border-t border-outline-variant">
-            <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-              Fraud Check:{' '}
-            </span>
-            <span className="font-body-md text-body-md text-on-surface">
-              {fraudFlagged ? `Flagged — ${fraudReason}` : 'Passed'}
-            </span>
-          </div>
+                <div className="flex flex-col gap-unit">
+                  <span className="font-label-md text-label-md text-on-surface-variant">
+                    Claim Type
+                  </span>
+                  <span className="font-data-tabular text-data-tabular text-on-surface capitalize">
+                    {claimType || '—'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-unit">
+                  <span className="font-label-md text-label-md text-on-surface-variant">
+                    Incident Date
+                  </span>
+                  <span className="font-data-tabular text-data-tabular text-on-surface">
+                    {incidentDate || '—'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-unit">
+                  <span className="font-label-md text-label-md text-on-surface-variant">
+                    Amount
+                  </span>
+                  <span className="font-data-tabular text-data-tabular text-on-surface">
+                    {amountRequested != null
+                      ? `$${Number(amountRequested).toFixed(2)}`
+                      : '—'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-stack-lg">
+                <h2 className="font-headline-sm text-headline-sm text-primary mb-stack-sm">
+                  Reasoning
+                </h2>
+
+                <div className="p-stack-md bg-surface border border-outline-variant rounded-DEFAULT">
+                  <p className="font-body-md text-body-md text-on-surface">
+                    {reasoning || 'No reasoning available.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-stack-md border-t border-outline-variant">
+                <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+                  Fraud Check:{' '}
+                </span>
+                <span className="font-body-md text-body-md text-on-surface">
+                  {fraudFlagged ? `Flagged — ${fraudReason}` : 'Passed'}
+                </span>
+              </div>
+            </>
+          )}
 
           <div className="mt-margin-desktop flex justify-end gap-stack-md">
             <button
