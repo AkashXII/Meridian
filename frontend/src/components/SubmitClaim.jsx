@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from './Header.jsx';
 
 export default function SubmitClaim({
   authToken,
@@ -40,123 +41,69 @@ export default function SubmitClaim({
 
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col">
-      <header className="bg-surface-container-lowest border-b border-outline-variant w-full">
-        <div className="relative flex items-center w-full px-margin-desktop py-4">
-          <div
-            className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer"
-            onClick={() => setCurrentScreen('submit')}
-          >
-            Meridian
-          </div>
+      <Header
+        currentScreen={currentScreen}
+        setCurrentScreen={setCurrentScreen}
+        setAuthToken={setAuthToken}
+        userRole={userRole}
+      />
 
-          <nav className="hidden md:flex gap-6 items-center absolute left-1/2 -translate-x-1/2">
-            <button
-              type="button"
-              onClick={() => setCurrentScreen('submit')}
-              className={`font-body-md text-body-md pb-1 cursor-pointer transition-colors duration-150 ${
-                currentScreen === 'submit'
-                  ? 'text-primary border-b-2 border-primary font-bold'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              Submit a Claim
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCurrentScreen('history')}
-              className={`font-body-md text-body-md pb-1 cursor-pointer transition-colors duration-150 ${
-                currentScreen === 'history'
-                  ? 'text-primary border-b-2 border-primary font-bold'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              Claim History
-            </button>
-
-            {userRole === 'reviewer' && (
-              <button
-                type="button"
-                onClick={() => setCurrentScreen('review')}
-                className={`font-body-md text-body-md pb-1 cursor-pointer transition-colors duration-150 ${
-                  currentScreen === 'review'
-                    ? 'text-primary border-b-2 border-primary font-bold'
-                    : 'text-on-surface-variant hover:text-primary'
-                }`}
-              >
-                Review Queue
-              </button>
-            )}
-          </nav>
-
-          <button
-            type="button"
-            onClick={() => setAuthToken(null)}
-            className="ml-auto font-body-md text-body-md text-primary cursor-pointer hover:text-on-surface-variant transition-all duration-150"
-          >
-            Log Out
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-grow w-full max-w-container-max mx-auto px-margin-desktop py-12">
+      <main className="flex-grow w-full max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="mb-stack-lg">
-            <h1 className="font-display-lg text-display-lg text-on-surface mb-stack-sm">
-              Submit a Claim
-            </h1>
-
-            <p className="font-body-lg text-body-lg text-on-surface-variant">
-              Please provide detailed information about your claim to expedite the review process.
+          <div className="mb-6">
+            <h1 className="font-display-lg text-display-lg text-on-surface">Submit a claim</h1>
+            <p className="font-body-lg text-body-lg text-on-surface-variant mt-1">
+              Describe what happened in your own words. The claim is checked against your policy and you get a
+              decision with the reasoning behind it.
             </p>
           </div>
 
-          <form className="space-y-stack-lg" onSubmit={handleSubmit}>
-            <div className="flex flex-col space-y-stack-sm">
-              <label
-                className="font-label-md text-label-md text-on-surface uppercase tracking-wider"
-                htmlFor="claim-description"
-              >
-                Describe your claim
+          <form
+            className="bg-white border border-outline-variant rounded-DEFAULT p-6 space-y-5"
+            onSubmit={handleSubmit}
+          >
+            <div>
+              <label className="block font-label-md text-label-md text-on-surface mb-1.5" htmlFor="claim-description">
+                What happened?
               </label>
 
               <textarea
-                className="w-full bg-surface-container-lowest border border-outline-variant rounded p-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-0 resize-y"
+                className="w-full bg-white border border-outline-variant px-3 py-2.5 font-body-md text-body-md text-on-surface resize-y"
                 id="claim-description"
-                placeholder="Enter claim details here..."
-                rows="8"
+                placeholder="e.g. A tree branch fell on my car on 2026-11-08. Policy A-77821. The repair estimate is $650."
+                rows="7"
                 value={claimDescription}
                 onChange={(e) => setClaimDescription(e.target.value)}
               ></textarea>
 
-              <p className="font-body-md text-body-md text-on-surface-variant text-sm">
-                Include policy number, date of incident, and estimated amount.
+              <p className="text-[13px] text-on-surface-variant mt-2">
+                Include your policy number, the date of the incident (YYYY-MM-DD), and the amount you're claiming.
               </p>
             </div>
 
             {error && (
-              <p
-                className="font-body-md text-body-md"
-                style={{ color: '#9B1C1C' }}
-              >
+              <p className="font-body-md text-body-md" style={{ color: '#b91c1c' }}>
                 {error}
               </p>
             )}
 
-            <div className="pt-stack-md">
+            <div className="flex items-center gap-3">
               <button
-                className="w-full sm:w-auto px-8 py-3 bg-primary-container text-on-primary font-label-md text-label-md rounded hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer disabled:opacity-50"
+                className="px-5 py-2.5 bg-primary-container text-on-primary text-[14px] font-medium rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors cursor-pointer disabled:opacity-50"
                 type="submit"
                 disabled={loading}
               >
-                {loading ? 'Submitting...' : 'Submit Claim'}
+                {loading ? 'Checking claim…' : 'Submit claim'}
               </button>
+              {loading && (
+                <span className="text-[13px] text-on-surface-variant">
+                  Extracting details, checking coverage and fraud rules. This takes a few seconds.
+                </span>
+              )}
             </div>
           </form>
         </div>
       </main>
-
-      <footer className="bg-surface-container w-full border-t border-outline-variant mt-auto"></footer>
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import Header from './Header.jsx';
+import { badgeFor, badgeStyle, formatAmount } from './ui.js';
 
 export default function ClaimHistory({
   authToken,
@@ -37,178 +39,83 @@ export default function ClaimHistory({
     }
   };
 
-  const badgeStyle = (decision) => {
-    if (decision === 'approved') return { bg: '#035531', text: '#ffffff', label: 'Approved' };
-    if (decision === 'denied') return { bg: '#610000', text: '#ffffff', label: 'Denied' };
-    return { bg: '#7a6e00', text: '#ffffff', label: 'Needs Review' };
-  };
-
   const filteredClaims = claims.filter((c) =>
     (c.policy_number || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const th = 'py-2.5 px-4 text-[12.5px] font-medium text-on-surface-variant';
+
   return (
-    <div className="text-on-surface font-body-md antialiased min-h-screen flex flex-col bg-surface-container-lowest">
-      <header className="bg-surface-container-lowest border-b border-outline-variant w-full">
-        <div className="relative flex items-center w-full px-margin-desktop py-4">
-          <div
-            className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer"
-            onClick={() => setCurrentScreen('submit')}
-          >
-            Meridian
-          </div>
+    <div className="text-on-surface font-body-md antialiased min-h-screen flex flex-col bg-background">
+      <Header
+        currentScreen={currentScreen}
+        setCurrentScreen={setCurrentScreen}
+        setAuthToken={setAuthToken}
+        userRole={userRole}
+      />
 
-          <nav className="hidden md:flex gap-6 items-center absolute left-1/2 -translate-x-1/2">
-            <button
-              type="button"
-              onClick={() => setCurrentScreen('submit')}
-              className={`font-body-md text-body-md pb-1 cursor-pointer transition-colors duration-150 ${
-                currentScreen === 'submit'
-                  ? 'text-primary border-b-2 border-primary font-bold'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              Submit a Claim
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCurrentScreen('history')}
-              className={`font-body-md text-body-md pb-1 cursor-pointer transition-colors duration-150 ${
-                currentScreen === 'history'
-                  ? 'text-primary border-b-2 border-primary font-bold'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              Claim History
-            </button>
-
-            {userRole === 'reviewer' && (
-              <button
-                type="button"
-                onClick={() => setCurrentScreen('review')}
-                className={`font-body-md text-body-md pb-1 cursor-pointer transition-colors duration-150 ${
-                  currentScreen === 'review'
-                    ? 'text-primary border-b-2 border-primary font-bold'
-                    : 'text-on-surface-variant hover:text-primary'
-                }`}
-              >
-                Review Queue
-              </button>
-            )}
-          </nav>
-
-          <button
-            type="button"
-            onClick={() => setAuthToken(null)}
-            className="ml-auto font-body-md text-body-md text-primary cursor-pointer hover:text-on-surface-variant transition-all duration-150"
-          >
-            Log Out
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-margin-desktop">
-        <div className="mb-stack-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-stack-md">
+      <main className="flex-grow w-full max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-10">
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
-            <h1 className="font-headline-md text-headline-md text-on-surface mb-unit">
-              Claim History
-            </h1>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Review and manage past and pending insurance claims.
+            <h1 className="font-headline-md text-headline-md text-on-surface">Claim history</h1>
+            <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+              Every claim you've submitted and what was decided. Select a row to see the reasoning.
             </p>
           </div>
 
-          <div className="flex items-center gap-stack-sm w-full md:w-auto">
-            <input
-              className="w-full md:w-64 px-3 py-2 border border-[#D1D5DB] rounded font-body-md text-body-md bg-surface-container-lowest text-on-surface outline-none transition-colors"
-              placeholder="Search by policy number..."
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+          <input
+            className="w-full md:w-64 px-3 py-2 border border-outline-variant font-body-md text-body-md bg-white text-on-surface"
+            placeholder="Search by policy number"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
         {error && (
-          <p className="mb-stack-md" style={{ color: '#9B1C1C' }}>
+          <p className="mb-4" style={{ color: '#b91c1c' }}>
             {error}
           </p>
         )}
 
-        {loading && (
-          <p className="text-on-surface-variant">
-            Loading claims...
-          </p>
-        )}
+        {loading && <p className="text-on-surface-variant">Loading claims…</p>}
 
         {!loading && filteredClaims.length === 0 && (
-          <p className="text-on-surface-variant">
-            No claims yet. submit one to see it here.
-          </p>
+          <div className="bg-white border border-outline-variant rounded-DEFAULT p-8 text-center">
+            <p className="text-on-surface-variant">No claims yet. Submit one and it will appear here.</p>
+          </div>
         )}
 
         {!loading && filteredClaims.length > 0 && (
-          <div className="w-full overflow-x-auto border border-[#E5E7EB] rounded-DEFAULT">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+          <div className="w-full overflow-x-auto bg-white border border-outline-variant rounded-DEFAULT">
+            <table className="w-full text-left border-collapse min-w-[720px]">
               <thead>
-                <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                  <th className="py-3 px-4 font-label-md text-label-md text-on-surface-variant">
-                    Date
-                  </th>
-                  <th className="py-3 px-4 font-label-md text-label-md text-on-surface-variant">
-                    Policy Number
-                  </th>
-                  <th className="py-3 px-4 font-label-md text-label-md text-on-surface-variant">
-                    Claim Type
-                  </th>
-                  <th className="py-3 px-4 font-label-md text-label-md text-on-surface-variant">
-                    Decision
-                  </th>
-                  <th className="py-3 px-4 font-label-md text-label-md text-on-surface-variant text-right">
-                    Amount
-                  </th>
+                <tr className="border-b border-outline-variant bg-surface-container-low">
+                  <th className={th}>Date</th>
+                  <th className={th}>Policy number</th>
+                  <th className={th}>Claim type</th>
+                  <th className={th}>Decision</th>
+                  <th className={`${th} text-right`}>Amount</th>
                 </tr>
               </thead>
 
-              <tbody className="font-data-tabular text-data-tabular text-on-surface bg-surface-container-lowest">
+              <tbody className="text-on-surface">
                 {filteredClaims.map((c) => {
-                  const badge = badgeStyle(c.final_decision);
-
+                  const badge = badgeFor(c.final_decision);
                   return (
                     <tr
                       key={c.id}
                       onClick={() => handleRowClick(c.id)}
-                      className="border-b border-[#E5E7EB] hover:bg-surface-bright transition-colors cursor-pointer"
+                      className="border-b border-outline-variant last:border-b-0 hover:bg-surface transition-colors cursor-pointer"
                     >
+                      <td className="py-3 px-4 font-data-tabular text-data-tabular">{c.created_at?.slice(0, 10)}</td>
+                      <td className="py-3 px-4 font-data-tabular text-data-tabular">{c.policy_number || '—'}</td>
+                      <td className="py-3 px-4 text-[14px] capitalize">{c.claim_type || '—'}</td>
                       <td className="py-3 px-4">
-                        {c.created_at?.slice(0, 10)}
+                        <span className="status" style={badgeStyle(badge)}>{badge.label}</span>
                       </td>
-
-                      <td className="py-3 px-4">
-                        {c.policy_number || '—'}
-                      </td>
-
-                      <td className="py-3 px-4 capitalize">
-                        {c.claim_type || '—'}
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <span
-                          className="inline-flex items-center px-2 py-1 rounded font-label-md text-label-md"
-                          style={{
-                            background: badge.bg,
-                            color: badge.text,
-                          }}
-                        >
-                          {badge.label}
-                        </span>
-                      </td>
-
-                      <td className="py-3 px-4 text-right">
-                        {c.amount_requested != null
-                          ? `$${Number(c.amount_requested).toFixed(2)}`
-                          : '—'}
+                      <td className="py-3 px-4 text-right font-data-tabular text-data-tabular">
+                        {formatAmount(c.amount_requested)}
                       </td>
                     </tr>
                   );
@@ -218,8 +125,6 @@ export default function ClaimHistory({
           </div>
         )}
       </main>
-
-      <footer className="bg-surface-container w-full bottom-0 border-t border-outline-variant mt-auto"></footer>
     </div>
   );
 }

@@ -1,10 +1,8 @@
 import json
 import os
 
-from overrides import final
 import pymysql
 from dotenv import load_dotenv
-from typer.cli import state
 
 load_dotenv()
 
@@ -48,6 +46,9 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
         "input_tokens": state.get("input_tokens"),
         "output_tokens": state.get("output_tokens"),
         "estimated_cost_usd": state.get("estimated_cost_usd"),
+        "retrieval_top_score": state.get("retrieval_top_score"),
+        "low_retrieval_confidence": state.get("low_retrieval_confidence"),
+        "escalation_reason": state.get("escalation_reason"),
     }
 
     sql = """
@@ -57,14 +58,16 @@ def record_decision(state: dict, latency_ms: int, user_id: int | None = None) ->
             retrieved_docs, coverage_decision, coverage_reasoning,
             fraud_flagged, fraud_reason, final_decision, latency_ms,
             input_tokens, output_tokens, estimated_cost_usd, user_id,
-            review_status
+            review_status, retrieval_top_score, low_retrieval_confidence,
+            escalation_reason
         ) VALUES (
             %(raw_claim_text)s, %(redacted_claim_text)s, %(pii_found)s,
             %(policy_number)s, %(claim_type)s, %(incident_date)s, %(amount_requested)s,
             %(retrieved_docs)s, %(coverage_decision)s, %(coverage_reasoning)s,
             %(fraud_flagged)s, %(fraud_reason)s, %(final_decision)s, %(latency_ms)s,
             %(input_tokens)s, %(output_tokens)s, %(estimated_cost_usd)s, %(user_id)s,
-            %(review_status)s
+            %(review_status)s, %(retrieval_top_score)s, %(low_retrieval_confidence)s,
+            %(escalation_reason)s
         )
     """
 

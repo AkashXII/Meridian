@@ -43,7 +43,7 @@ A policyholder describes a claim in plain language. The system extracts structur
 
 ## Retrieval & faithfulness evaluation
 
-Full methodology and failure-mode analysis in [`RESULTS.md`](./RESULTS.md). Headline numbers:
+Full methodology and failure-mode analysis in [`RESULTS.md`](./app/RESULTS.md). Headline numbers:
 
 | | Score |
 |---|---|
@@ -51,7 +51,7 @@ Full methodology and failure-mode analysis in [`RESULTS.md`](./RESULTS.md). Head
 | Retrieval — blind set (queries written without seeing the corpus) | 0.65 recall@3 / 0.76 recall@5 |
 | Faithfulness (LLM-as-judge, different model than the generator) | 17/17 grounded |
 
-The blind/labeled gap is the real finding, check out `RESULTS.md` for the five tested hypotheses and the two failure modes that actually explained it.
+The blind/labeled gap is the real finding, check out [`RESULTS.md`](./app/RESULTS.md) for the five tested hypotheses and the two failure modes that actually explained it.
 
 ---
 
@@ -114,8 +114,9 @@ app/
 data/
   auto_policy.txt, home_policy.txt, health_policy.txt, general_terms.txt
 eval/
-  run_eval.py              
-  run_blind_chunked.py       
+  run_labeled_chunked.py   # labeled set (25 queries) -> 0.96 recall@3
+  run_chunkie_evalss.py    # blind set (17 queries)   -> 0.65 / 0.76
+  run_eval.py              # legacy: old 164-doc atomic corpus
   faithfulness_eval.py         
 frontend/
   src/  # Login, SubmitClaim, ClaimResult, ClaimHistory, ReviewQueue
@@ -125,7 +126,7 @@ frontend/
 
 ## Known limitations
 
-- Retrieval underperforms on short, colloquial queries with no clause-specific vocabulary — a structural property of dense retrieval, diagnosed in `RESULTS.md`, not a bug to fix
+- Retrieval underperforms on short, colloquial queries with no clause-specific vocabulary — a structural property of dense retrieval, diagnosed in [`RESULTS.md`](./app/RESULTS.md), not a bug to fix
 - No policyholder/declarations-page database — the corpus models policy *terms*, not individual customer records
 - Jaeger traces are in-memory and don't survive a restart
 - No Docker Compose yet — scoped, not yet built

@@ -1,3 +1,5 @@
 .env
 .venv/
 __pycache__/
+ragas_check_venv/
+.pytest_cache/

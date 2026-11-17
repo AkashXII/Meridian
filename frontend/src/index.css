@@ -1,53 +1,33 @@
 @import "tailwindcss";
 
+/*
+  Theme tokens. Every screen uses these names, so the whole UI is restyled
+  from here. Palette: warm neutral greys, near-black ink, one teal accent.
+*/
 @theme {
-  --color-inverse-on-surface: #eaf1ff;
-  --color-primary-fixed-dim: #b7c7eb;
-  --color-surface-container: #e5eeff;
-  --color-surface-bright: #f8f9ff;
-  --color-surface-container-high: #dfe9fa;
-  --color-surface: #f8f9ff;
-  --color-tertiary-fixed: #ffdea7;
-  --color-surface-dim: #d1dbec;
-  --color-tertiary-fixed-dim: #e3c28a;
-  --color-tertiary: #211500;
-  --color-surface-container-highest: #d9e3f4;
-  --color-on-error: #ffffff;
-  --color-inverse-primary: #b7c7eb;
-  --color-secondary: #3f6653;
-  --color-on-error-container: #93000a;
-  --color-on-tertiary-container: #ac8e5b;
-  --color-secondary-fixed: #c1ecd4;
-  --color-secondary-container: #beead1;
-  --color-error: #ba1a1a;
-  --color-primary: #041632;
-  --color-on-surface: #121c28;
-  --color-on-secondary-fixed: #002114;
+  --color-accent: #0f766e;
+  --color-accent-soft: #e6f2f0;
+
+  --color-primary: #1c1917;
+  --color-primary-container: #1c1917;
   --color-on-primary: #ffffff;
-  --color-tertiary-container: #3b2800;
-  --color-outline-variant: #c5c6ce;
-  --color-on-primary-container: #8393b5;
-  --color-surface-variant: #d9e3f4;
+  --color-on-primary-fixed-variant: #3f3a36;
+
+  --color-background: #fafaf9;
+  --color-surface: #f5f5f4;
+  --color-surface-bright: #f5f5f4;
+  --color-surface-container: #f5f5f4;
+  --color-surface-container-low: #fafaf9;
   --color-surface-container-lowest: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-background: #f8f9ff;
-  --color-surface-tint: #4f5e7e;
-  --color-on-surface-variant: #44474d;
-  --color-secondary-fixed-dim: #a5d0b9;
-  --color-primary-fixed: #d7e2ff;
-  --color-inverse-surface: #27313e;
-  --color-primary-container: #1b2b48;
-  --color-on-primary-fixed-variant: #374765;
-  --color-on-tertiary: #ffffff;
-  --color-surface-container-low: #eef4ff;
-  --color-on-background: #121c28;
-  --color-on-tertiary-fixed-variant: #594317;
-  --color-on-tertiary-fixed: #271900;
-  --color-on-secondary-fixed-variant: #274e3d;
-  --color-outline: #75777e;
-  --color-on-primary-fixed: #091b37;
-  --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #436b58;
+
+  --color-on-background: #1c1917;
+  --color-on-surface: #1c1917;
+  --color-on-surface-variant: #57534e;
+
+  --color-outline: #a8a29e;
+  --color-outline-variant: #e7e5e4;
+
+  --color-error: #b91c1c;
 
   --spacing-gutter: 16px;
   --spacing-stack-md: 16px;
@@ -56,79 +36,99 @@
   --spacing-margin-mobile: 16px;
   --spacing-unit: 4px;
   --spacing-stack-sm: 8px;
-  --spacing-container-max: 1440px;
+
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-/* Custom Typography Utilities matching Tailwind theme config */
+/* Typography utilities (names kept so existing markup keeps working) */
 .font-display-lg, .text-display-lg {
-  font-family: 'Inter', sans-serif;
-  font-size: 30px;
-  line-height: 38px;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: 26px;
+  line-height: 34px;
+  letter-spacing: -0.01em;
   font-weight: 600;
 }
 
 .font-headline-md, .text-headline-md {
-  font-family: 'Inter', sans-serif;
-  font-size: 24px;
-  line-height: 32px;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 30px;
   letter-spacing: -0.01em;
   font-weight: 600;
 }
 
 .font-headline-sm, .text-headline-sm {
-  font-family: 'Inter', sans-serif;
-  font-size: 18px;
-  line-height: 26px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
   font-weight: 600;
 }
 
 .font-body-lg, .text-body-lg {
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
+  font-family: var(--font-sans);
+  font-size: 15px;
   line-height: 24px;
   font-weight: 400;
 }
 
 .font-body-md, .text-body-md {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 20px;
+  line-height: 21px;
   font-weight: 400;
 }
 
 .font-label-md, .text-label-md {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-}
-
-.font-data-tabular, .text-data-tabular {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 18px;
+  font-weight: 500;
+}
+
+/* Policy numbers, amounts, dates: monospace so they line up and read as data */
+.font-data-tabular, .text-data-tabular {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
   font-weight: 400;
 }
 
 .rounded-DEFAULT {
-  border-radius: 0.125rem;
+  border-radius: 6px;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f8f9ff;
-  color: #121c28;
+  font-family: var(--font-sans);
+  background-color: #fafaf9;
+  color: #1c1917;
   -webkit-font-smoothing: antialiased;
+}
+
+input, textarea {
+  border-radius: 6px;
 }
 
 input:focus, textarea:focus {
   outline: none;
-  border-color: #041632 !important;
-  box-shadow: none !important;
+  border-color: #0f766e !important;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12) !important;
 }
 
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+/* Status label: plain text with a small dot, no filled pill */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1c1917;
+  white-space: nowrap;
+}
+.status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--dot);
 }

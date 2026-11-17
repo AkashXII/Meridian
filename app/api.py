@@ -137,6 +137,9 @@ def submit_claim(request: Request, body: ClaimRequest, user: dict = Depends(get_
         "coverage_reasoning": coverage.reasoning if coverage else None,
         "fraud_flagged": fraud.flagged if fraud else None,
         "fraud_reason": fraud.reason if fraud else None,
+        "retrieval_top_score": result.get("retrieval_top_score"),
+        "low_retrieval_confidence": result.get("low_retrieval_confidence"),
+        "escalation_reason": result.get("escalation_reason"),
         "latency_ms": latency_ms,
         "estimated_cost_usd": float(result["estimated_cost_usd"]),
     }
@@ -173,7 +176,9 @@ def claim_detail(claim_id: int, user: dict = Depends(get_current_user)):
                        amount_requested, retrieved_docs, coverage_decision,
                        coverage_reasoning, fraud_flagged, fraud_reason,
                        final_decision, latency_ms, estimated_cost_usd,
-                       review_status, reviewed_at, review_notes
+                       review_status, reviewed_at, review_notes,
+                       retrieval_top_score, low_retrieval_confidence,
+                       escalation_reason
                 FROM claim_decisions
                 WHERE id = %s AND user_id = %s
                 """,
@@ -197,7 +202,9 @@ def review_queue(user: dict = Depends(require_reviewer)):
                 """
                 SELECT id, created_at, policy_number, claim_type, amount_requested,
                        coverage_decision, coverage_reasoning, fraud_flagged,
-                       fraud_reason, final_decision, review_status
+                       fraud_reason, final_decision, review_status,
+                       retrieval_top_score, low_retrieval_confidence,
+                       escalation_reason
                 FROM claim_decisions
                 WHERE review_status = 'pending'
                 ORDER BY created_at ASC
@@ -216,20 +223,13 @@ def resolve_review(claim_id: int, body: ReviewRequest, user: dict = Depends(requ
     conn = _connect()
     try:
         with conn.cursor() as cur:
-            cur.execute(
-                "SELECT id, review_status FROM claim_decisions WHERE id = %s",
-                (claim_id,),
-            )
-            claim = cur.fetchone()
-            if not claim:
-                raise HTTPException(status_code=404, detail="Claim not found")
-            if claim["review_status"] != "pending":
-                raise HTTPException(
-                    status_code=409,
-                    detail=f"Claim is not pending review (status: {claim['review_status']})",
-                )
-
-            cur.execute(
+            # Check and write in ONE statement: only updates if still pending.
+            # InnoDB takes an exclusive row lock for the UPDATE, so a concurrent
+            # reviewer blocks, then re-reads the committed row, no longer
+            # matches review_status = 'pending', and affects 0 rows.
+            # (MySQL has no UPDATE ... RETURNING; pymysql's execute() returns
+            # the affected-row count instead.)
+            affected = cur.execute(
                 """
                 UPDATE claim_decisions
                 SET review_status = %s,
@@ -237,10 +237,26 @@ def resolve_review(claim_id: int, body: ReviewRequest, user: dict = Depends(requ
                     reviewed_by = %s,
                     reviewed_at = NOW(),
                     review_notes = %s
-                WHERE id = %s
+                WHERE id = %s AND review_status = 'pending'
                 """,
                 (body.decision, body.decision, user["user_id"], body.notes, claim_id),
             )
+            updated = affected == 1
+
+            if not updated:
+                # Lost the race or bad id: find out which, for the right error.
+                cur.execute(
+                    "SELECT review_status FROM claim_decisions WHERE id = %s",
+                    (claim_id,),
+                )
+                claim = cur.fetchone()
+                conn.rollback()
+                if not claim:
+                    raise HTTPException(status_code=404, detail="Claim not found")
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Claim is not pending review (status: {claim['review_status']})",
+                )
         conn.commit()
     finally:
         conn.close()

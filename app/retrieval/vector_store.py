@@ -1,4 +1,8 @@
+from typing import List, Optional
+
 import chromadb
+
+
 def build_vector_store(docs: list[dict]):
     client = chromadb.Client()
     collection = client.create_collection(name="policy_docs")
@@ -10,8 +14,15 @@ def build_vector_store(docs: list[dict]):
     return collection
 
 
-def query_vector_store(collection, query: str, k: int = 3) -> list[dict]:
-    results = collection.query(query_texts=[query], n_results=k)
+def query_vector_store(
+    collection, query: str, k: int = 3, claim_types: Optional[List[str]] = None
+) -> list[dict]:
+    """claim_types, if given, restricts the search to chunks whose metadata
+    claim_type is in that list (filtered inside Chroma, before ranking)."""
+    kwargs = {"query_texts": [query], "n_results": k}
+    if claim_types:
+        kwargs["where"] = {"claim_type": {"$in": list(claim_types)}}
+    results = collection.query(**kwargs)
     hits = []
     for doc_id, text, meta, distance in zip(
         results["ids"][0], results["documents"][0],

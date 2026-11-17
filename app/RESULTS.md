@@ -8,7 +8,7 @@
 |---|---|---|
 | Labeled (25 queries, self-authored) | Recall@3 | 0.96 |
 | Labeled | MRR | 0.86 |
-| Blind (18 queries, written without seeing the corpus) | Recall@3 | 0.65 |
+| Blind (17 queries, written without seeing the corpus) | Recall@3 | 0.65 |
 | Blind | Recall@5 | 0.76 |
 
 **Why two eval sets.** The labeled set was written by the same process that wrote the corpus, so its vocabulary naturally overlaps with the clauses — a soft ceiling, not a clean measurement. The blind set was written independently, in real-user phrasing, with the doc_id label assigned only *after* the query was written, to prevent the corpus from shaping the query. The blind number is the one that reflects real-world performance; the labeled number is a sanity check that the pipeline works at all.

@@ -40,97 +40,91 @@ export default function Login({ authToken, setAuthToken, setUserRole }) {
     }
   };
 
+  const inputClass =
+    'w-full border border-outline-variant px-3 py-2 font-body-md text-body-md bg-white text-on-surface transition-colors';
+
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-surface-container-lowest">
-      <div className="flex-grow flex items-center justify-center p-4">
-        <main className="w-full max-w-[400px]">
-          <div className="mb-stack-lg text-center">
-            <h1 className="font-display-lg text-display-lg text-primary">Meridian</h1>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <main className="w-full max-w-[380px]">
+        <div className="mb-8">
+          <div className="flex items-baseline gap-2">
+            <span className="text-[22px] font-semibold tracking-tight text-primary">Meridian</span>
+            <span className="text-[13px] text-on-surface-variant">Claims</span>
+          </div>
+          <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+            Sign in to submit and track insurance claims.
+          </p>
+        </div>
+
+        <div className="bg-white border border-outline-variant rounded-DEFAULT">
+          <div className="flex border-b border-outline-variant">
+            {[
+              { id: 'login', label: 'Log in' },
+              { id: 'register', label: 'Create account' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                className={`flex-1 py-3 text-[14px] border-b-2 -mb-px cursor-pointer transition-colors ${
+                  tab === t.id
+                    ? 'border-accent text-primary font-medium'
+                    : 'border-transparent text-on-surface-variant hover:text-primary'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
 
-          <div className="border border-outline-variant bg-surface-container-lowest">
-            <div className="flex border-b border-outline-variant">
+          <form className="p-6" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-5">
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface mb-1.5" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  className={inputClass}
+                  id="email"
+                  placeholder="name@company.com"
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface mb-1.5" htmlFor="password">
+                  Password
+                </label>
+                <input
+                  className={inputClass}
+                  id="password"
+                  required
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              {error && (
+                <p className="font-body-md text-body-md" style={{ color: '#b91c1c' }}>
+                  {error}
+                </p>
+              )}
+
               <button
-                type="button"
-                onClick={() => setTab('login')}
-                className={`flex-1 py-stack-md text-center font-label-md text-label-md bg-surface-container-lowest cursor-pointer ${
-                  tab === 'login'
-                    ? 'border-b-2 border-primary text-primary'
-                    : 'text-on-surface-variant hover:text-primary transition-colors'
-                }`}
+                className="w-full py-2.5 bg-primary-container text-on-primary text-[14px] font-medium rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors cursor-pointer disabled:opacity-50"
+                type="submit"
+                disabled={loading}
               >
-                LOG IN
-              </button>
-              <button
-                type="button"
-                onClick={() => setTab('register')}
-                className={`flex-1 py-stack-md text-center font-label-md text-label-md bg-surface-container-lowest cursor-pointer ${
-                  tab === 'register'
-                    ? 'border-b-2 border-primary text-primary'
-                    : 'text-on-surface-variant hover:text-primary transition-colors'
-                }`}
-              >
-                REGISTER
+                {loading ? 'Please wait…' : tab === 'login' ? 'Log in' : 'Create account'}
               </button>
             </div>
-
-            <form className="p-stack-lg" onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-stack-lg">
-                <div>
-                  <label className="block font-label-md text-label-md text-on-surface mb-stack-sm uppercase tracking-wider" htmlFor="email">
-                    Email Address
-                  </label>
-                  <input
-                    className="w-full border border-outline-variant p-stack-sm font-body-md text-body-md bg-surface-container-lowest text-on-surface transition-colors"
-                    id="email"
-                    placeholder="name@company.com"
-                    required
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-label-md text-label-md text-on-surface mb-stack-sm uppercase tracking-wider" htmlFor="password">
-                    Password
-                  </label>
-                  <input
-                    className="w-full border border-outline-variant p-stack-sm font-body-md text-body-md bg-surface-container-lowest text-on-surface transition-colors"
-                    id="password"
-                    required
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-
-                {error && (
-                  <p className="font-body-md text-body-md" style={{ color: '#9B1C1C' }}>{error}</p>
-                )}
-
-                <button
-                  className="w-full mt-stack-sm py-stack-sm px-gutter bg-primary-container text-on-primary font-label-md text-label-md hover:bg-primary transition-colors duration-200 cursor-pointer disabled:opacity-50"
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? 'PLEASE WAIT...' : tab === 'login' ? 'LOG IN' : 'REQUEST ACCESS'}
-                </button>
-
-                {tab === 'register' && (
-                  <div className="text-center mt-stack-sm">
-                    <p className="font-body-md text-body-md text-on-surface-variant">
-                      Your request will be sent to the administrator for approval.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </form>
-          </div>
-        </main>
-      </div>
-
-      <footer className="w-full bg-surface-container border-t border-outline-variant"></footer>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

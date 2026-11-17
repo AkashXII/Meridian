@@ -4,13 +4,15 @@ from pathlib import Path
 import os
 from app.token_usage import extract_usage, estimate_cost
 from opentelemetry import propagate
-from app.general_rules import check_processing_requirements
+from app.decision import resolve_final_decision
 from app.fraud_rules import run_fraud_checks
 from app.llm import get_llm
 from app.models import CoverageDecision, ExtractedClaim, FraudCheck
 from app.pii import redact
+from app.retrieval.confidence import MIN_RERANK_SCORE, assess_retrieval
 from app.retrieval.hybrid_retriever import hybrid_search
 from app.retrieval.keyword_store import build_keyword_store
+from app.retrieval.scope import retrieval_scope
 from app.retrieval.vector_store import build_vector_store
 from app.state import ClaimState
 from app.tracing import tracer
@@ -96,9 +98,16 @@ def coverage_check_node(state: ClaimState) -> dict:
     with tracer.start_as_current_span("coverage_check", context=parent_ctx) as span:
         extracted = state["extracted"]
         query = f"{extracted.claim_type} claim: {extracted.description}"
+        scope = retrieval_scope(extracted.claim_type)
 
-        with tracer.start_as_current_span("retrieval"):
-            retrieved = hybrid_search(_vector_store, _keyword_store, query, top_k=3)
+        with tracer.start_as_current_span("retrieval") as retrieval_span:
+            retrieved = hybrid_search(
+                _vector_store, _keyword_store, query, top_k=3, claim_types=scope
+            )
+            top_score, low_confidence = assess_retrieval(retrieved)
+            retrieval_span.set_attribute("retrieval.scope", scope or ["all"])
+            retrieval_span.set_attribute("retrieval.top_score", top_score if top_score is not None else -1.0)
+            retrieval_span.set_attribute("retrieval.low_confidence", low_confidence)
 
         policy_context = "\n".join(f"- {r['title']}: {r['text']}" for r in retrieved)
 
@@ -135,6 +144,8 @@ def coverage_check_node(state: ClaimState) -> dict:
     return {
         "coverage_decision": decision,
         "retrieved_docs": retrieved_docs,
+        "retrieval_top_score": top_score,
+        "low_retrieval_confidence": low_confidence,
         "input_tokens": total_input,
         "output_tokens": total_output,
         "estimated_cost_usd": cost,
@@ -162,25 +173,19 @@ def final_decision_node(state: ClaimState) -> dict:
         extracted = state.get("extracted")
 
         amount = extracted.amount_requested if extracted else None
-        requirements = check_processing_requirements(amount)
 
-        if fraud.flagged and coverage.decision == "approved":
-            final = CoverageDecision(
-                decision="needs_review",
-                reasoning=f"Escalated for human review — fraud flag: {fraud.reason}",
-            )
-            span.set_attribute("final_decision.overridden", True)
-        else:
-            final = CoverageDecision(decision=coverage.decision, reasoning=coverage.reasoning)
-            span.set_attribute("final_decision.overridden", False)
-        if requirements and final.decision != "denied":
-            final = CoverageDecision(
-                decision=final.decision,
-                reasoning=final.reasoning + " Processing requirements: " + " ".join(requirements),
-            )
-            span.set_attribute("final_decision.requirements", len(requirements))
+        final, escalation_reason = resolve_final_decision(
+            coverage,
+            fraud,
+            amount,
+            low_retrieval_confidence=state.get("low_retrieval_confidence", False),
+            retrieval_top_score=state.get("retrieval_top_score"),
+            confidence_threshold=MIN_RERANK_SCORE,
+        )
+        span.set_attribute("final_decision.decision", final.decision)
+        span.set_attribute("final_decision.overridden", escalation_reason is not None)
 
-    return {"final_decision": final}
+    return {"final_decision": final, "escalation_reason": escalation_reason}
 
 
 def route_after_intake(state: ClaimState):
