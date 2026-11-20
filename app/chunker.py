@@ -1,95 +1,111 @@
-
 import re
+from collections import Counter
 from pathlib import Path
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pypdf import PdfReader
 
-MAX_CHUNK_CHARS = 500
+POLICY_FILE = "arogya_sanjeevani_icici.pdf"
+CLAIM_TYPE = "health"
+MAX_CHUNK_CHARS = 1000
 
-_fallback_splitter = RecursiveCharacterTextSplitter(
+SECTION_HEADING = re.compile(r"^(\d{1,2})\.\s+([A-Z][A-Z &/-]+)$")
+CLAUSE_HEADING = re.compile(r"^(\d{1,2}(?:\.\d{1,2})+)\.?\s*([A-Z“\"].*)$")
+LIST_HEADING = re.compile(r"^List (I{1,3}|IV) – (.+)$")
+
+splitter = RecursiveCharacterTextSplitter(
     chunk_size=MAX_CHUNK_CHARS,
-    chunk_overlap=80,
-    separators=["\n\n", ". ", " ", ""],  
+    chunk_overlap=100,
+    separators=["\n", ". ", " "],
 )
 
-TITLE_PATTERN = re.compile(r"^\*\*(.+?)\.\*\*\s*(.*)", re.DOTALL)
+
+def read_clean_lines(pdf_path):
+    pages = [page.extract_text() for page in PdfReader(pdf_path).pages]
+    pages_containing = Counter(
+        line for page in pages for line in {l.strip() for l in page.splitlines()}
+    )
+    lines = []
+    for page in pages:
+        for line in page.splitlines():
+            line = line.strip()
+            if not line or line.isdigit() or pages_containing[line] >= len(pages) / 2:
+                continue
+            lines.append(line)
+    return lines
 
 
-def _extract_title(paragraph: str) -> tuple[str, str]:
-    match = TITLE_PATTERN.match(paragraph.strip())
-    if match:
-        return match.group(1).strip(), match.group(2).strip()
-    return "Untitled Clause", paragraph.strip()
+def split_regions(lines):
+    wording_end = lines.index("TABLE OF BENEFITS")
+    annexure_start = lines.index("Annexure A")
+    annexure_end = lines.index("Annexure A", annexure_start + 1)
+    return lines[:wording_end], lines[annexure_start + 1:annexure_end]
 
 
-def chunk_document(text: str, claim_type: str, source_doc: str) -> list[dict]:
-    paragraphs = [p.strip() for p in text.strip().split("\n\n") if p.strip()]
+def make_title(text):
+    return re.split(r":| means ", text, maxsplit=1)[0].strip()[:80]
+
+
+def group_clauses(lines):
+    clauses = []
+    section_title = None
+    for line in lines:
+        section = SECTION_HEADING.match(line)
+        clause = CLAUSE_HEADING.match(line)
+        if section:
+            section_title = section.group(2).title()
+            clauses.append({"id": section.group(1), "section": section_title,
+                            "title": section_title, "lines": []})
+        elif clause and section_title:
+            clauses.append({"id": clause.group(1), "section": section_title,
+                            "title": make_title(clause.group(2)), "lines": [line]})
+        elif clauses:
+            clauses[-1]["lines"].append(line)
+    return clauses
+
+
+def group_annexure(lines):
+    lists = []
+    for line in lines:
+        heading = LIST_HEADING.match(line)
+        if heading:
+            lists.append({"id": f"A-{heading.group(1)}", "section": "Annexure A",
+                          "title": f"List {heading.group(1)}: {heading.group(2)}", "lines": []})
+        elif lists:
+            lists[-1]["lines"].append(line)
+    return lists
+
+
+def to_chunks(clause):
+    header = f"{clause['section']} | {clause['id']} {clause['title']}"
+    body = "\n".join(clause["lines"])
+    pieces = [body] if len(body) <= MAX_CHUNK_CHARS else splitter.split_text(body)
     chunks = []
-    counter = 1
-
-    for para in paragraphs:
-        title, body = _extract_title(para)
-
-        if len(para) <= MAX_CHUNK_CHARS:
-            chunks.append({
-                "doc_id": f"{source_doc}_{counter}",
-                "claim_type": claim_type,
-                "title": title,
-                "text": body,
-            })
-            counter += 1
-        else:
-            # Oversized clause - fall back to recursive splitting, but keep
-            # the same clause title on every sub-chunk so provenance survives.
-            sub_pieces = _fallback_splitter.split_text(body)
-            for sub in sub_pieces:
-                chunks.append({
-                    "doc_id": f"{source_doc}_{counter}",
-                    "claim_type": claim_type,
-                    "title": f"{title} (part)",
-                    "text": sub.strip(),
-                })
-                counter += 1
-
+    for number, piece in enumerate(pieces, start=1):
+        doc_id = f"{CLAIM_TYPE}_{clause['id']}"
+        if len(pieces) > 1:
+            doc_id += f"_p{number}"
+        chunks.append({
+            "doc_id": doc_id,
+            "claim_type": CLAIM_TYPE,
+            "title": clause["title"],
+            "text": f"{header}\n{piece}",
+        })
     return chunks
 
 
-def ingest_policy_documents(data_dir: str) -> list[dict]:
-    sources = {
-        "auto_policy.txt": "auto",
-        "home_policy.txt": "home",
-        "health_policy.txt": "health",
-        "general_terms.txt": "general",
-    }
-
-    all_chunks = []
-    for filename, claim_type in sources.items():
-        path = Path(data_dir) / filename
-        text = path.read_text()
-        source_doc = filename.replace(".txt", "").replace("_policy", "").replace("_terms", "")
-        chunks = chunk_document(text, claim_type, source_doc)
-        all_chunks.extend(chunks)
-
-    return all_chunks
+def ingest_policy_documents(data_dir):
+    lines = read_clean_lines(Path(data_dir) / POLICY_FILE)
+    wording, annexure = split_regions(lines)
+    clauses = [c for c in group_clauses(wording) + group_annexure(annexure) if c["lines"]]
+    return [chunk for clause in clauses for chunk in to_chunks(clause)]
 
 
 if __name__ == "__main__":
     chunks = ingest_policy_documents("data")
-    print(f"Total chunks: {len(chunks)}\n")
-
-    from collections import Counter
-    print("By claim_type:", Counter(c["claim_type"] for c in chunks))
-    print()
-    fallback_hits = [c for c in chunks if "(part)" in c["title"]]
-    print(f"Fallback-split chunks: {len(fallback_hits)}")
-    for c in fallback_hits:
-        print(f"  {c['doc_id']} - {c['title']} ({len(c['text'])} chars)")
-
-    print()
-    print("Sample chunks:")
-    for c in chunks[:3]:
-        print(f"  [{c['doc_id']}] {c['title']}: {c['text'][:70]}...")
-    oversized = [c for c in chunks if len(c["text"]) > MAX_CHUNK_CHARS + 50]
-    print(f"\nChunks still over size limit after fallback: {len(oversized)}")
-    assert not oversized, "fallback splitter failed to bring a chunk under the limit"
-    print("OK: all chunks within size bounds")
+    ids = [c["doc_id"] for c in chunks]
+    sizes = [len(c["text"]) for c in chunks]
+    print(f"{len(chunks)} chunks, {len(set(ids))} unique ids, "
+          f"chars min {min(sizes)} / avg {sum(sizes) // len(sizes)} / max {max(sizes)}")
+    for chunk in chunks:
+        print(f"{chunk['doc_id']:<16} {len(chunk['text']):>5}  {chunk['title']}")
